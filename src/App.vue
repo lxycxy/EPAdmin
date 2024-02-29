@@ -3,5 +3,7 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RouterView />
+  <transition name="fade" mode="out-in">
+    <RouterView />
+  </transition>
 </template>
