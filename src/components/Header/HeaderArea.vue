@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useSidebarStore } from '@/stores/sidebar'
 import DarkModeSwitcher from './DarkModeSwitcher.vue'
-import DropdownMessage from './DropdownMessage.vue'
-import DropdownNotification from './DropdownNotification.vue'
 import DropdownUser from './DropdownUser.vue'
 
 const { isSidebarOpen, toggleSidebar } = useSidebarStore()
@@ -66,13 +64,6 @@ const { isSidebarOpen, toggleSidebar } = useSidebarStore()
             <!-- Dark Mode Toggler -->
           </li>
 
-          <!-- Notification Menu Area -->
-          <DropdownNotification />
-          <!-- Notification Menu Area -->
-
-          <!-- Chat Notification Area -->
-          <DropdownMessage />
-          <!-- Chat Notification Area -->
         </ul>
 
         <!-- User Area -->

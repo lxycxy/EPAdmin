@@ -6,7 +6,7 @@ const imageList = ref(['WD1.png', 'WD2.png', 'WD3.png']);
 </script>
 
 <template>
-    <div class="col-span-12 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4 transition-all duration-500 border-solid border-2 hover:border-black dark:hover:border-white">
+    <div class="col-span-12 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4 border-solid border-2">
         <div class="mt-1 p-2 flex items-end"> 
             <h2 class="pl-2 pt-1 text-sm font-bold text-black dark:text-white">工作动态</h2>      
         </div>

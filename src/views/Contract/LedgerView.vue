@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import CalendarCard from '@/components/CalendarCard.vue'
+import SettingsCard from '@/components/SettingsCard.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
-const pageTitle = ref('Calender')
+const pageTitle = ref('合同台账')
 </script>
 
 <template>
   <DefaultLayout>
-    <div class="mx-auto max-w-7xl">
+    <div class="mx-auto max-w-270">
       <!-- Breadcrumb Start -->
       <BreadcrumbDefault :pageTitle="pageTitle" />
       <!-- Breadcrumb End -->
-      <CalendarCard />
+      <SettingsCard />
     </div>
   </DefaultLayout>
 </template>

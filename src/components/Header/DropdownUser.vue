@@ -72,7 +72,7 @@ onClickOutside(target, () => {
                 fill=""
               />
             </svg>
-            My Profile
+            个人资料
           </router-link>
         </li>
         <li>
@@ -142,7 +142,7 @@ onClickOutside(target, () => {
             fill=""
           />
         </svg>
-        Log Out
+        退出
       </button>
     </div>
     <!-- Dropdown End -->

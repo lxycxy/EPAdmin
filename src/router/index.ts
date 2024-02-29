@@ -2,9 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import SigninView from '@/views/Authentication/SigninView.vue'
 import SignupView from '@/views/Authentication/SignupView.vue'
-import CalendarView from '@/views/CalendarView.vue'
-import BasicChartView from '@/views/Charts/BasicChartView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
+import ProjectView from '@/views/Project/ProjectView.vue'
+import LedgerView from '@/views/Contract/LedgerView.vue'
+import PayProgressView from '@/views/Contract/PayProgressView.vue'
+import LogWriteView from '@/views/Log/LogWriteView.vue'
+import LogInquireView from '@/views/Log/LogInquireView.vue'
+import QuestionWriteView from '@/views/Question/QuestionWriteView.vue'
+import QuestionHandleView from '@/views/Question/QuestionHandleView.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'
 import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
 import SettingsView from '@/views/Pages/SettingsView.vue'
@@ -24,11 +29,59 @@ const routes = [
     }
   },
   {
-    path: '/calendar',
-    name: 'calendar',
-    component: CalendarView,
+    path: '/project',
+    name: 'Project',
+    component: ProjectView,
     meta: {
-      title: 'Calendar'
+      title: 'Project'
+    }
+  },
+  {
+    path: '/contract/ledger',
+    name: 'Ledger',
+    component: LedgerView,
+    meta: {
+      title: 'Ledger'
+    }
+  },
+  {
+    path: '/contract/payprogress',
+    name: 'PayProgress',
+    component: PayProgressView,
+    meta: {
+      title: 'PayProgress'
+    }
+  },
+  {
+    path: '/log/logwrite',
+    name: 'LogWrite',
+    component: LogWriteView,
+    meta: {
+      title: 'LogWrite'
+    }
+  },
+  {
+    path: '/log/loginquire',
+    name: 'LogInquire',
+    component: LogInquireView,
+    meta: {
+      title: 'LogInquire'
+    }
+  },
+  {
+    path: '/question/questionwrite',
+    name: 'QuestionWrite',
+    component: QuestionWriteView,
+    meta: {
+      title: 'QuestionWrite'
+    }
+  },
+  {
+    path: '/question/questionhandle',
+    name: 'QuestionHandle',
+    component: QuestionHandleView,
+    meta: {
+      title: 'QuestionHandle'
     }
   },
   {
@@ -69,14 +122,6 @@ const routes = [
     component: SettingsView,
     meta: {
       title: 'Settings'
-    }
-  },
-  {
-    path: '/charts/basic-chart',
-    name: 'basicChart',
-    component: BasicChartView,
-    meta: {
-      title: 'Basic Chart'
     }
   },
   {
