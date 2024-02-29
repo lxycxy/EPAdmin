@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import SigninView from '@/views/Authentication/SigninView.vue'
 import SignupView from '@/views/Authentication/SignupView.vue'
 import CalendarView from '@/views/CalendarView.vue'
-import BasicChartView from '@/views/Charts/BasicChartView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'
 import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
@@ -68,14 +67,6 @@ const routes = [
     component: SettingsView,
     meta: {
       title: 'Settings'
-    }
-  },
-  {
-    path: '/charts/basic-chart',
-    name: 'basicChart',
-    component: BasicChartView,
-    meta: {
-      title: 'Basic Chart'
     }
   },
   {

@@ -168,8 +168,7 @@ const cardItems = ref([
 
 <template>
   <!-- Card Item Start -->
-  <div
-    v-for="(item, index) in cardItems"
+  <div v-for="(item, index) in cardItems"
     :key="index"
     class="rounded-sm border border-stroke bg-white py-4 px-5.5 shadow-default dark:border-strokedark dark:bg-boxdark"
   >
