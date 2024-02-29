@@ -17,7 +17,6 @@ function getIconType(type: string) {
 }
 export function tipMessage(msg: string, type: string = 'success', duration: number = 3000) {
 
-
     const tipContainer = document.createElement('div');
     tipContainer.className = "text-black bg-white" + baseStyle;
     tipContainer.innerHTML = getIconType(type);

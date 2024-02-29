@@ -24,20 +24,30 @@ const range = (currentIndex: number) => {
     for (let i = 2; i < props.pageCount; i ++)
       createArr.push(i);
   } else {
-    let l = currentIndex - 2;
-    let r = currentIndex + 2;
-    if (l < 2) {
-      l = 2;
-      r += 4 - currentIndex;
+    if (currentIndex != 1 && currentIndex != props.pageCount) createArr.push(currentIndex);
+
+    let leftCnt = 1, rightCnt = 1;
+    while (currentIndex - leftCnt >= 2 && leftCnt <= 2) createArr.push(currentIndex - leftCnt ++);
+    while (currentIndex + rightCnt < props.pageCount && rightCnt <= 2) createArr.push(currentIndex + rightCnt ++);
+
+
+    if (rightCnt != 3) {
+      while (currentIndex - leftCnt  >= 2 && rightCnt <= 2) {
+        createArr.push(currentIndex - leftCnt);
+        leftCnt ++;
+        rightCnt ++;
+      }
+    } else if (leftCnt != 3) {
+      while (currentIndex + rightCnt >= 2 && currentIndex + rightCnt < props.pageCount && leftCnt <= 2) {
+        createArr.push(currentIndex + rightCnt);
+        rightCnt ++;
+        leftCnt ++;
+      }
     }
 
-    if (r > props.pageCount - 1) {
-      r = props.pageCount - 1;
-      l -= 3 - (props.pageCount - currentIndex);
-    }
-
-    for (let i = l; i <= r; i ++) createArr.push(i);
   }
+  createArr.sort();
+  console.log(createArr)
   return createArr;
 }
 
@@ -67,7 +77,7 @@ const range = (currentIndex: number) => {
             <span class="w-5 h-5 flex items-center justify-center"> 1 </span>
           </a>
 
-          <span v-if="range(currentPage)[0] !== 2" class="w-10 h-5 flex items-center justify-center">...</span>
+          <span v-if="range(currentPage).length !== 0 && range(currentPage)[0] !== 2" class="w-10 h-5 flex items-center justify-center">...</span>
 
           <a
               v-for="index in range(currentPage)"
@@ -76,10 +86,9 @@ const range = (currentIndex: number) => {
               class="relative hover:bg-slate-200 hover:scale-110 transform duration-200 inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-slate-200 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
             <span class="w-5 h-5 flex items-center justify-center">{{ index }}</span>
           </a>
+          <span v-if="range(currentPage).length !== 0 && range(currentPage).at(-1) != props.pageCount - 1"   class="w-10 h-5 flex items-center justify-center">...</span>
 
-          <span v-if="range(currentPage).at(-1) !=props.pageCount - 1"   class="w-10 h-5 flex items-center justify-center">...</span>
-
-          <a @click="changeCurrentPage(props.pageCount)" :class="currentPage == props.pageCount ? 'bg-primary text-white' : ''" class="relative hover:bg-slate-200 hover:scale-110 transform duration-200 inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-slate-200 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+          <a v-if="pageCount > 1" @click="changeCurrentPage(props.pageCount)" :class="currentPage == props.pageCount ? 'bg-primary text-white' : ''" class="relative hover:bg-slate-200 hover:scale-110 transform duration-200 inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-slate-200 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
             <span class="w-5 h-5 flex items-center justify-center">{{props.pageCount}}</span>
           </a>
 
