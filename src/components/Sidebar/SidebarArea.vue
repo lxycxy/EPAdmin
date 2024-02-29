@@ -11,7 +11,7 @@ const sidebarStore = useSidebarStore()
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
 })
-
+// 侧边栏
 const menuGroups = ref([
   {
     name: '菜单',
@@ -180,7 +180,10 @@ const menuGroups = ref([
                 </svg>`,
         label: 'Pages',
         route: '#',
-        children: [{ label: 'Settings', route: '/pages/settings' }]
+        children: [
+          { label: 'Settings', route: '/pages/settings' },
+          { label: '表格模板', route: '/pages/modetable'}
+        ]
       }
     ]
   },

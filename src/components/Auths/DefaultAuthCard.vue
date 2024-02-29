@@ -4,17 +4,26 @@ const props = defineProps(['subtitle', 'title', 'customClasses'])
 
 <template>
   <!-- ====== Forms Section Start -->
-  <div class="flex justify-center mt-5">
+  <div class="flex justify-center h-screen items-center">
     <div
-        class="rounded-lg  border border-stroke bg-white
+        class="rounded-lg border border-stroke bg-white
          shadow-xl dark:border-strokedark dark:bg-boxdark w-2/3"
     >
       <div class="flex flex-wrap items-center">
         <div class="hidden w-full xl:block xl:w-1/2">
           <div class="py-17.5 px-26 text-center">
-            <router-link class="mb-5.5 inline-block" to="/">
-              <img class="hidden dark:block" src="@/assets/images/logo/logo.svg" alt="Logo" />
-              <img class="dark:hidden" src="@/assets/images/logo/logo-dark.svg" alt="Logo" />
+            <router-link class="mb-5.5 flex justify-center" to="/">
+              <img
+              class="w-10 mr-2 ml-2"
+              src="../../assets/images/logo/logo-icon.svg"
+              alt="logo"
+              />
+              <h2
+                  class="text-3xl font-satoshi font-bold text-black dark:text-white dark:text-gray-200 flex justify-center items-center"
+                  translate="no"
+              >
+                EP Admin
+              </h2>
             </router-link>
 
             <p class="font-medium 2xl:px-20">

@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import SigninView from '@/views/Authentication/SigninView.vue'
 import SignupView from '@/views/Authentication/SignupView.vue'
 import CalendarView from '@/views/CalendarView.vue'
+import BasicChartView from '@/views/Charts/BasicChartView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'
 import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
@@ -11,6 +12,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
+import ModeTableView from "@/views/Pages/ModeTableView.vue";
 
 const routes = [
   {
@@ -70,6 +72,14 @@ const routes = [
     }
   },
   {
+    path: '/charts/basic-chart',
+    name: 'basicChart',
+    component: BasicChartView,
+    meta: {
+      title: 'Basic Chart'
+    }
+  },
+  {
     path: '/ui-elements/alerts',
     name: 'alerts',
     component: AlertsView,
@@ -100,6 +110,14 @@ const routes = [
     meta: {
       title: 'Signup'
     }
+  },
+  {
+    path: '/pages/modetable',
+    name: 'modetable',
+    component: ModeTableView,
+    meta: {
+      title: 'ModeTable'
+    }
   }
 ]
 
@@ -112,7 +130,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+  document.title = `Ep Admin ${to.meta.title} | 项目工程管理系统`
   next()
 })
 
