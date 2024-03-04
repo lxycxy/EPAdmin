@@ -3,7 +3,8 @@ import SearchInput from "@/components/Input/SearchInput.vue";
 import SearchIcon from "@/components/Icons/SearchIcon.vue";
 import ResetIcon from "@/components/Icons/ResetIcon.vue";
 import {reactive} from "vue";
-const emits = defineEmits(['clickSearch', 'clickReset'])
+import ExportIcon from "@/components/Icons/ExportIcon.vue";
+const emits = defineEmits(['clickSearch', 'clickReset', 'clickExport'])
 
 const searchForm = reactive({
   data: {
@@ -40,18 +41,23 @@ const handleReset = () => {
       </el-select>
     </div>
 
-    <div class="flex h-full space-x-4 items-center justify-around">
-      <button @click="$emit('clickSearch', searchForm.data)" class="bg-primary  rounded-xl hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary h-3/4 w-22 justify-around flex items-center">
+    <div class="flex h-full ml-3 space-x-4 items-center justify-around">
+      <button @click="$emit('clickSearch', searchForm.data)" class="bg-primary  rounded-xl hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary h-3/4 w-20 justify-around flex items-center">
         <SearchIcon class="w-4 h-4"></SearchIcon>
         <span class="text-white">搜索</span>
       </button>
-      <button @click="handleReset" class="bg-meta-3 rounded-xl hover:ring-1 hover:ring-meta-3 hover:-translate-y-1 transition ring-primary h-3/4 w-22 justify-around flex items-center">
+      <button @click="handleReset" class="bg-meta-3 rounded-xl hover:ring-1 hover:ring-meta-3 hover:-translate-y-1 transition ring-primary h-3/4 w-20 justify-around flex items-center">
         <ResetIcon class="w-4 h-4"></ResetIcon>
         <span class="text-white">重置</span>
       </button>
+      <button @click="$emit('clickSearch')" class="bg-meta-10 text-white rounded-xl hover:ring-1 hover:ring-meta-10 hover:-translate-y-1 transition ring-primary h-3/4 w-20 justify-around flex items-center">
+        <ExportIcon class="w-4 h-4"></ExportIcon>
+        导出
+      </button>
+      <slot></slot>
     </div>
   </div>
-  <slot></slot>
+
 </template>
 
 <style scoped>

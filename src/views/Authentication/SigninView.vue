@@ -51,7 +51,7 @@ import {tipMessage} from "@/utils/TipMessage";
           <button
               @click="tipMessage('登录成功', 'info')"
               value="Sign In"
-              class="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white transition duration-1000 hover:bg-opacity-90 hover:font-bold"
+              class="w-full cursor-pointer hover:ring-1 ring-primary hover:-translate-y-1 rounded-lg border border-primary bg-primary p-4 font-medium text-white transition hover:font-bold"
           >
             登录
           </button>

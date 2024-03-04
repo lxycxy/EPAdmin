@@ -5,7 +5,7 @@ import Pagination from "@/components/Buttons/Pagination.vue";
 import LogTableLayout from "@/views/Log/LogTableLayout.vue";
 
 
-const logBaseInfo = reactive( {
+const baseInfo = reactive( {
   data: {
     logNo : '',
     projectName : '',
@@ -90,13 +90,12 @@ const originData = ref([
 
 let tableData = ref([...originData.value])
 
-console.log(tableData)
 const handlePageChange = (currentPage : number) => {
   console.log(currentPage);
 }
 
-const openLogPage = (row : any) => {
-  logBaseInfo.data = row
+const openDialog = (row : any) => {
+  baseInfo.data = {...row}
   dialogVisible.value = true
 }
 
@@ -127,14 +126,20 @@ const handleReset = () => {
     <table class="w-full mt-5 rounded-lg">
       <tr class="h-14 bg-slate-200 dark:bg-form-strokedark">
         <th v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
+        <th>操作</th>
       </tr>
       <tr
           class="bg-white dark:bg-boxdark dark:text-white dark:hover:text-black hover:bg-slate-200 border-slate-200 transition odd:border-b odd:border-t h-10 text-center"
           v-for="(row, index) in tableData" :key="index"
       >
         <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
-          <a v-if="idx.index === 'logNo'" class="text-primary hover:cursor-pointer" @click="openLogPage(row)" > {{ row[idx.index] }} </a>
+          <a v-if="idx.index === 'logNo'" class="text-primary hover:cursor-pointer" @click="openDialog(row)" > {{ row[idx.index] }} </a>
           <div v-else>{{ row[idx.index] }}</div>
+        </td>
+        <td>
+          <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
+            查看
+          </a>
         </td>
       </tr>
     </table>
@@ -150,21 +155,21 @@ const handleReset = () => {
     >
       <div class="grid grid-cols-4 infoBoxParent">
         <div >日志编号</div>
-        <div >{{ logBaseInfo.data.logNo }}</div>
+        <div >{{ baseInfo.data.logNo }}</div>
         <div >项目名称</div>
-        <div >{{logBaseInfo.data.projectName}}</div>
+        <div >{{baseInfo.data.projectName}}</div>
         <div >填报人</div>
-        <div>{{logBaseInfo.data.commuter}}</div>
+        <div>{{baseInfo.data.commuter}}</div>
         <div>填报时间</div>
-        <div>{{logBaseInfo.data.commitTime}}</div>
+        <div>{{baseInfo.data.commitTime}}</div>
         <div>日志下发时间</div>
-        <div>{{logBaseInfo.data.releaseTime}}</div>
+        <div>{{baseInfo.data.releaseTime}}</div>
         <div>是否逾期</div>
-        <div>{{logBaseInfo.data.isDelay}}</div>
+        <div>{{baseInfo.data.isDelay}}</div>
       </div>
       <div class="flex h-24 items-center">
         <div class="w-1/4 h-full flex justify-center items-center" style="background-color: #F6F6F6">日志内容</div>
-        <div  class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">{{ logBaseInfo.data.logContent }}</div>
+        <div  class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">{{ baseInfo.data.logContent }}</div>
       </div>
     </el-dialog>
   </DefaultLayout>

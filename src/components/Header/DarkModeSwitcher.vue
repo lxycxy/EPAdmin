@@ -13,7 +13,7 @@ const darkModeStore = useDarkModeStore()
     <input type="checkbox" class="absolute top-0 z-50 m-0 h-full w-full cursor-pointer opacity-0" />
     <span
       :class="{ 'right-1 translate-x-full': darkModeStore.darkMode }"
-      class="absolute top-1/2 left-1 flex h-6 w-6 -translate-y-1/2 translate-x-0 items-center justify-center rounded-full bg-white shadow-switcher duration-75 ease-linear"
+      class="absolute top-1/2 left-1 flex h-6 w-6 -translate-y-1/2 translate-x-0 items-center justify-center rounded-full bg-white shadow-switcher duration-100 ease-linear"
     >
       <span class="dark:hidden">
         <svg

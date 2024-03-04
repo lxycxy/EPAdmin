@@ -1,20 +1,13 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import SearchInput from "@/components/Input/SearchInput.vue";
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
-import SearchIcon from "@/components/Icons/SearchIcon.vue";
-import ResetIcon from "@/components/Icons/ResetIcon.vue";
 import LogTableLayout from "@/views/Log/LogTableLayout.vue";
+import {b} from "vite/dist/node/types.d-jgA8ss1A";
 
 const writeModel = ref(false)
-const searchForm = reactive({
-  logNo : '',
-  projectName : '',
-  isDelay: '',
-})
 
-const logBaseInfo = reactive( {
+const baseInfo = reactive( {
   data: {
     logNo : '',
     projectName : '',
@@ -103,14 +96,14 @@ const handlePageChange = (currentPage : number) => {
   console.log(currentPage);
 }
 
-const openLogPage = (row : any) => {
-  logBaseInfo.data = {...row}
+const openDialog = (row : any) => {
+  baseInfo.data = {...row}
   dialogVisible.value = true
 }
 
-const openWritePage = (row : any) => {
+const openWriteDialog = (row : any) => {
   dialogVisible.value = true
-  logBaseInfo.data = {...row}
+  baseInfo.data = {...row}
   writeModel.value = true
 }
 
@@ -144,11 +137,14 @@ const handleReset = () => {
           v-for="(row, index) in tableData" :key="index"
       >
         <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
-          <a v-if="idx.index === 'logNo'" class="text-primary hover:cursor-pointer" @click="openLogPage(row)" > {{ row[idx.index] }} </a>
+          <a v-if="idx.index === 'logNo'" class="text-primary hover:cursor-pointer" @click="openDialog(row)" > {{ row[idx.index] }} </a>
           <div v-else>{{ row[idx.index] }}</div>
         </td>
         <td>
-          <a class="text-primary transition hover:font-bold cursor-pointer" @click="openWritePage(row)">
+          <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
+            查看
+          </a>
+          <a class="text-primary transition hover:font-bold cursor-pointer" @click="openWriteDialog(row)">
             填写
           </a>
         </td>
@@ -167,24 +163,24 @@ const handleReset = () => {
     >
       <div class="grid grid-cols-4 infoBoxParent">
         <div >日志编号</div>
-        <div >{{ logBaseInfo.data.logNo }}</div>
+        <div >{{ baseInfo.data.logNo }}</div>
         <div >项目名称</div>
-        <div >{{logBaseInfo.data.projectName}}</div>
+        <div >{{baseInfo.data.projectName}}</div>
         <div >填报人</div>
-        <div>{{logBaseInfo.data.commuter}}</div>
+        <div>{{baseInfo.data.commuter}}</div>
         <div>填报时间</div>
-        <div>{{logBaseInfo.data.commitTime}}</div>
+        <div>{{baseInfo.data.commitTime}}</div>
         <div>日志下发时间</div>
-        <div>{{logBaseInfo.data.releaseTime}}</div>
+        <div>{{baseInfo.data.releaseTime}}</div>
         <div>是否逾期</div>
-        <div>{{logBaseInfo.data.isDelay ? '是' : '否'}}</div>
+        <div>{{baseInfo.data.isDelay ? '是' : '否'}}</div>
       </div>
       <div class="flex h-24 items-center">
         <div class="w-1/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8; background-color: #F6F6F6">日志内容</div>
-        <div v-if="! writeModel" class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">{{ logBaseInfo.data.logContent }}</div>
+        <div v-if="! writeModel" class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">{{ baseInfo.data.logContent }}</div>
         <div v-else class="w-3/4 h-full flex justify-center items-center">
           <el-input
-              v-model="logBaseInfo.data.logContent"
+              v-model="baseInfo.data.logContent"
               type="textarea"
               style="height: 100%"
               resize="none"
