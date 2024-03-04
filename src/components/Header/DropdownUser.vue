@@ -25,7 +25,9 @@ onClickOutside(target, () => {
       </span>
 
       <span class="h-12 w-12 rounded-full">
-        <img src="@/assets/images/user/user-01.png" alt="User" />
+        <img v-if="userStore.role == 'employee'" class="rounded-full" src="@/assets/images/user/employee.png" alt="User" />
+        <img v-else-if="userStore.role == 'manager'" class="rounded-full" src="@/assets/images/user/manager.png" alt="User" />
+        <img v-else class="rounded-full" src="@/assets/images/user/boss.png" alt="User" />
       </span>
 
       <svg
