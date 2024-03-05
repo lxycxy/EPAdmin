@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import SettingsCard from '@/components/SettingsCard.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 const pageTitle = ref('合同支付进度')
@@ -9,11 +8,11 @@ const pageTitle = ref('合同支付进度')
 
 <template>
   <DefaultLayout>
-    <div class="mx-auto max-w-270">
+    <div class="mx-auto max-w-400">
       <!-- Breadcrumb Start -->
       <BreadcrumbDefault :pageTitle="pageTitle" />
       <!-- Breadcrumb End -->
-      <SettingsCard />
+      
     </div>
   </DefaultLayout>
 </template>

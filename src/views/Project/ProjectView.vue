@@ -113,7 +113,7 @@ const addProjectDialog = () => {
 const editProjectDialog = (item: ProjectData) => {
   flag.value = false;
   addDialogVisible.value = true;
-  detailData = item;
+  detailData = {...item};
 }
 const closeAddProjectDialog = () => {
   addDialogVisible.value = false;
@@ -123,7 +123,7 @@ const closeAddProjectDialog = () => {
 const detailDialogVisible = ref(false);
 const showDetail = (item: ProjectData) => {
   detailDialogVisible.value = true;
-  detailData = item
+  detailData = {...item}
 }
 
 const value = ref('')
@@ -133,7 +133,7 @@ const pageTitle = ref('项目库')
 
 <template>
   <DefaultLayout>
-    <!-- 新增项目对话框 -->
+    <!-- 填写项目对话框 -->
     <el-dialog v-model="addDialogVisible" :title="flag ? '新建项目' : '修改项目'" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
       <div class="rounded-lg px-6">
         <p>基本信息</p>
@@ -182,7 +182,7 @@ const pageTitle = ref('项目库')
             <span class="text-red">*</span><span class="text-xs">项目金额(万元)</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <input type="text"
+            <input type="number"
               class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
               v-model="detailData.projectCost"
               />
