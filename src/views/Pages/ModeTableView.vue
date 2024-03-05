@@ -59,7 +59,7 @@ const handlePageChange = (currentPage : number) => {
       <tr class="bg-white hover:bg-slate-200 border-slate-200 transition odd:border-b odd:border-t h-10 text-center"
           v-for="(row, index) in tableData" :key="index"
       >
-        <td v-for="idx in columnsHeader" :key="idx.index"> {{row[idx.index]}}</td>
+        <td v-for="idx in columnsHeader" :key="idx.index"> {{row[idx.index as keyof typeof row]}}</td>
         <td class="flex justify-center space-x-6 items-center h-10">
           <PlusIcon class="w-5.5 h-5.5 hover:-translate-y-1.5 transition"/>
           <DeleteIcon class="w-5.5 h-5.5 hover:-translate-y-1.5 transition"/>

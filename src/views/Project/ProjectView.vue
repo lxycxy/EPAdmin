@@ -1,27 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import SearchInput from "@/components/Input/SearchInput.vue";
-import Pagination from "@/components/Buttons/Pagination.vue";
-
-interface ProjectData {
-  projectCost: number;
-  projectPlanFinishtime: string;
-  projectPlanStarttime: string;
-  projectRealFinishtime: string;
-  projectRealStarttime: string;
-  managerPhone: string;
-  projectCurrentPhase: string;
-  projectDescription: string;
-  projectId: string;
-  projectManager: string;
-  projectName: string;
-  projectPlace: string;
-  projectProgress: number;
-  projectState: string;
-  warming: number;
-}
+import SearchInput from "@/components/Input/SearchInput.vue"
+import Pagination from "@/components/Buttons/Pagination.vue"
+import type{PaginationInfo} from "@/utils/Pagination";
+import type{ProjectData} from "@/api/project"
+import * as projectApi from "@/api/project"
 
 const searchConditions = ref({
   projectName: '',
@@ -30,93 +15,35 @@ const searchConditions = ref({
   site: ''
 })
 
-const tableData = ref([
-  {
-    projectCost: 86360.14,
-    projectPlanFinishtime: '2023-8-2',
-    projectPlanStarttime: '2023-8-2',
-    projectRealFinishtime: '2023-8-2',
-    projectRealStarttime: '2023-8-2',
-    managerPhone: '18609878902',
-    projectCurrentPhase: '方案设计',
-    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
-    projectId: 'GTF6701',
-    projectManager: '张文文',
-    projectName: '大嶝机场建设',
-    projectPlace: '厦门，翔安',
-    projectProgress: 90,
-    projectState: '前期',
-    warming: 0
-  },
-  {
-    projectCost: 86360.14,
-    projectPlanFinishtime: '2023-8-2',
-    projectPlanStarttime: '2023-8-2',
-    projectRealFinishtime: '2023-8-2',
-    projectRealStarttime: '2023-8-2',
-    managerPhone: '18609878902',
-    projectCurrentPhase: '方案设计',
-    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
-    projectId: 'GTF6701',
-    projectManager: '张文文',
-    projectName: '大嶝机场建设',
-    projectPlace: '厦门，翔安',
-    projectProgress: 65,
-    projectState: '前期',
-    warming: 1
-  },
-  {
-    projectCost: 86360.14,
-    projectPlanFinishtime: '2023-8-2',
-    projectPlanStarttime: '2023-8-2',
-    projectRealFinishtime: '2023-8-2',
-    projectRealStarttime: '2023-8-2',
-    managerPhone: '18609878902',
-    projectCurrentPhase: '方案设计',
-    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
-    projectId: 'GTF6701',
-    projectManager: '张文文',
-    projectName: '大嶝机场建设',
-    projectPlace: '厦门，翔安',
-    projectProgress: 70,
-    projectState: '前期',
-    warming: 2
-  },
-  {
-    projectCost: 86360.14,
-    projectPlanFinishtime: '2023-8-2',
-    projectPlanStarttime: '2023-8-2',
-    projectRealFinishtime: '2023-8-2',
-    projectRealStarttime: '2023-8-2',
-    managerPhone: '18609878902',
-    projectCurrentPhase: '方案设计',
-    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
-    projectId: 'GTF6701',
-    projectManager: '张文文',
-    projectName: '大嶝机场建设',
-    projectPlace: '厦门，翔安',
-    projectProgress: 30,
-    projectState: '前期',
-    warming: 1
-  }
-])
-const detailData = ref<ProjectData>({
-  projectCost: 0,
-  projectPlanFinishtime: '',
-  projectPlanStarttime: '',
-  projectRealFinishtime: '',
-  projectRealStarttime: '',
-  managerPhone: '',
-  projectCurrentPhase: '',
-  projectDescription: '',
-  projectId: '',
-  projectManager: '',
-  projectName: '',
-  projectPlace: '',
-  projectProgress: 0,
-  projectState: '',
-  warming: 0
-})
+const originData = ref<ProjectData[]>([])
+const tableData = ref<ProjectData[]>([])
+let detailData : ProjectData = reactive({}) as ProjectData
+
+let pageInfo : PaginationInfo = reactive({}) as PaginationInfo
+
+const getProjectData = () => {
+  projectApi.getProjectData()
+      .then(resp => {
+        originData.value = resp.data
+
+        pageInfo.totalCount = originData.value.length;
+        pageInfo.pageSize = 6;
+        pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+        pageInfo.currentPage = 1;
+        tableData.value = [...originData.value]
+            .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+      })
+      .catch(resp => {
+        console.log(resp)
+      })
+}
+getProjectData();
+
+const handlePageChange = (currentPage : number) => {
+  pageInfo.currentPage = currentPage;
+  tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+}
 
 const currentPhaseOptions = [
   {
@@ -158,7 +85,6 @@ const stateOptions = [
     label: '竣工',
   }
 ]
-
 const options = [
   {
     value: 'Option1',
@@ -179,50 +105,28 @@ const options = [
 ]
 
 const addDialogVisible = ref(false)
-
-const detailDialogVisible = ref(false);
-
+let flag = ref() /* 判断addDialog窗口标题 */
 const addProjectDialog = () => {
+  flag.value = true;
   addDialogVisible.value = true;
-
 }
-
 const editProjectDialog = (item: ProjectData) => {
+  flag.value = false;
   addDialogVisible.value = true;
-  detailData.value = item;
+  detailData = item;
 }
-
-const showDetail = (item: ProjectData) => {
-  detailDialogVisible.value = true;
-  detailData.value = item
-}
-
 const closeAddProjectDialog = () => {
   addDialogVisible.value = false;
-  detailData.value = {
-    projectCost: 0,
-    projectPlanFinishtime: '',
-    projectPlanStarttime: '',
-    projectRealFinishtime: '',
-    projectRealStarttime: '',
-    managerPhone: '',
-    projectCurrentPhase: '',
-    projectDescription: '',
-    projectId: '',
-    projectManager: '',
-    projectName: '',
-    projectPlace: '',
-    projectProgress: 0,
-    projectState: '',
-    warming: 0
-  }
+  detailData = reactive({}) as ProjectData
+}
+
+const detailDialogVisible = ref(false);
+const showDetail = (item: ProjectData) => {
+  detailDialogVisible.value = true;
+  detailData = item
 }
 
 const value = ref('')
-
-const handlePageChange = (currentPage: number) => {
-  console.log(currentPage);
-}
 
 const pageTitle = ref('项目库')
 </script>
@@ -230,7 +134,7 @@ const pageTitle = ref('项目库')
 <template>
   <DefaultLayout>
     <!-- 新增项目对话框 -->
-    <el-dialog v-model="addDialogVisible" title="新建项目" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
+    <el-dialog v-model="addDialogVisible" :title="flag ? '新建项目' : '修改项目'" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
       <div class="rounded-lg px-6">
         <p>基本信息</p>
 
@@ -373,7 +277,9 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-start-12 col-end-12">
             <button
-              class="flex justify-around items-center bg-white text-black border rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-gray">
+              class="flex justify-around items-center bg-white text-black border rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-gray"
+              @click="closeAddProjectDialog"
+            >
               取消
             </button>
           </div>
@@ -559,6 +465,7 @@ const pageTitle = ref('项目库')
         </button>
       </div>
 
+
       <!-- 操作区 -->
       <div class="flex items-center flex-wrap mt-2">
         <button @click="addProjectDialog()"
@@ -641,11 +548,10 @@ const pageTitle = ref('项目库')
           <tbody>
             <tr class="bg-white dark:bg-slate-300 items-center" v-for="(item, index) in tableData" :key="index">
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ index + 1 }}</p>
+                <p class="text-xs text-black">{{ (pageInfo.currentPage - 1) * 6 + index + 1 }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-primary hover:underline cursor-pointer" @click="showDetail(item)">{{
-      item.projectName }}</p>
+                <p class="text-xs text-primary hover:underline cursor-pointer" @click="showDetail(item)">{{item.projectName }}</p>
               </td>
               <td class="text-center py-2 px-2">
                 <p class="text-xs text-black">{{ item.projectCost }}</p>
@@ -691,7 +597,12 @@ const pageTitle = ref('项目库')
       </div>
 
       <!-- 分页 -->
-      <Pagination class="h-12 text-xs" @pageChange="handlePageChange" pageCount="1" total="1"></Pagination>
+      <Pagination
+        @pageChange="handlePageChange"
+        :pageCount="pageInfo.totalPages"
+        :total="pageInfo.totalCount"
+        :currentPage="pageInfo.currentPage"
+     ></Pagination>
     </div>
   </DefaultLayout>
 

@@ -1,5 +1,7 @@
 {
-  "userId" : "123",
-  "username" : "牛马管理员",
-  "role" : "admin"
+  "data": {
+    "userId" : "123",
+    "username" : "牛马员工",
+    "role" : "employee"
+  }
 }

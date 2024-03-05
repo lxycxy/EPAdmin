@@ -3,24 +3,18 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
 import LogTableLayout from "@/views/Log/LogTableLayout.vue";
+import * as logApi from '@/api/log'
+import type {logItemData} from "@/api/log";
+import type {PaginationInfo} from "@/utils/Pagination";
 
+let baseInfo: logItemData = reactive({}) as logItemData;
 
-const baseInfo = reactive( {
-  data: {
-    logNo : '',
-    projectName : '',
-    logContent: '',
-    commitTime: '',
-    isDelay: '',
-    commuter: '',
-    releaseTime: ''
-  }
-})
 const dialogVisible = ref(false);
+
 const columnsHeader = ref([
   {
     title: '日志编号',
-    index: 'logNo'
+    index: 'logId'
   },
   {
     title: '项目名称',
@@ -32,11 +26,7 @@ const columnsHeader = ref([
   },
   {
     title: '填报时间',
-    index: 'commitTime'
-  },
-  {
-    title: '日志下发时间',
-    index: 'releaseTime'
+    index: 'logDate'
   },
   {
     title: '是否逾期',
@@ -44,78 +34,61 @@ const columnsHeader = ref([
   },
   {
     title: '填报人',
-    index: 'commuter'
+    index: 'logSender'
   }
 
 ])
 
-const originData = ref([
-  {
-    logNo: 1,
-    projectName: '项目1',
-    logContent: "log content..",
-    commitTime: 'xxxx-xx-xx: xx:xx:xx',
-    isDelay: true,
-    commuter: 'lxxx',
-    releaseTime: 'xxxxx:xxx'
-  },
-  {
-    logNo: 2,
-    projectName: '项目2',
-    logContent: "log content..",
-    commitTime: 'xxxx-xx-xx: xx:xx:xx',
-    isDelay: true,
-    commuter: 'lxxx',
-    releaseTime: 'xxxxx:xxx'
-  },
-  {
-    logNo: 3,
-    projectName: '项目3',
-    logContent: "log content..",
-    commitTime: 'xxxx-xx-xx: xx:xx:xx',
-    isDelay: true,
-    commuter: 'lxxx',
-    releaseTime: 'xxxxx:xxx'
-  },
-  {
-    logNo: 4,
-    projectName: '项目4',
-    logContent: "log content..",
-    commitTime: 'xxxx-xx-xx: xx:xx:xx',
-    isDelay: true,
-    commuter: 'lxxx',
-    releaseTime: 'xxxxx:xxx'
-  },
-])
+let pageInfo : PaginationInfo = reactive({}) as PaginationInfo
+let cPage = ref(1);
+const originData = ref<logItemData[]>([]);
+const tableData = ref<logItemData[]> ([]);
+const getLogTableData = () => {
+    logApi.getLogData()
+        .then(resp => {
+          originData.value = resp.data
 
-let tableData = ref([...originData.value])
+          pageInfo.totalCount = originData.value.length;
+          pageInfo.pageSize = 8;
+          pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+          pageInfo.currentPage = 1;
+          tableData.value = [...originData.value]
+              .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+        })
+        .catch(resp => {
+          console.log(resp)
+        })
+}
+
+getLogTableData();
 
 const handlePageChange = (currentPage : number) => {
-  console.log(currentPage);
+  pageInfo.currentPage = currentPage;
+  tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
 const openDialog = (row : any) => {
-  baseInfo.data = {...row}
+  baseInfo = {...row}
   dialogVisible.value = true
 }
 
 const searchData = (data : any) => {
-
   tableData.value = tableData.value.filter(
       item => {
-        console.log(item.isDelay, data.isDelay)
-        const logNoOk = data.logNo == '' || item.logNo == data.logNo
+        const logNoOk = data.logId == '' || item.logId == data.logId
         const projectNameOK = data.projectName == '' || item.projectName == data.projectName
         const isDelayOk = data.isDelay == '' || item.isDelay == data.isDelay
+
         return logNoOk && projectNameOK && isDelayOk
       }
   )
-
-
 }
 
 const handleReset = () => {
+  pageInfo.currentPage = 1;
   tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
 </script>
@@ -133,8 +106,8 @@ const handleReset = () => {
           v-for="(row, index) in tableData" :key="index"
       >
         <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
-          <a v-if="idx.index === 'logNo'" class="text-primary hover:cursor-pointer" @click="openDialog(row)" > {{ row[idx.index] }} </a>
-          <div v-else>{{ row[idx.index] }}</div>
+          <a v-if="idx.index === 'logId'" class="text-primary hover:cursor-pointer" @click="openDialog(row)" > {{ row[idx.index as keyof typeof row]}} </a>
+          <div v-else>{{ row[idx.index as keyof typeof row] }}</div>
         </td>
         <td>
           <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
@@ -146,7 +119,12 @@ const handleReset = () => {
     <div v-if="tableData.length === 0" class="h-48 border-t flex items-center justify-center border-slate-300 text-2xl font-bold bg-slate-200 w-full">
       暂无数据
     </div>
-    <Pagination @pageChange="handlePageChange" pageCount="8" total="97"></Pagination>
+    <Pagination
+        @pageChange="handlePageChange"
+        :pageCount="pageInfo.totalPages"
+        :total="pageInfo.totalCount"
+        :currentPage="pageInfo.currentPage"
+    ></Pagination>
 
     <el-dialog
         v-model="dialogVisible"
@@ -155,21 +133,21 @@ const handleReset = () => {
     >
       <div class="grid grid-cols-4 infoBoxParent">
         <div >日志编号</div>
-        <div >{{ baseInfo.data.logNo }}</div>
+        <div >{{ baseInfo.logId }}</div>
         <div >项目名称</div>
-        <div >{{baseInfo.data.projectName}}</div>
+        <div >{{baseInfo.projectName}}</div>
         <div >填报人</div>
-        <div>{{baseInfo.data.commuter}}</div>
+        <div>{{baseInfo.logSender}}</div>
         <div>填报时间</div>
-        <div>{{baseInfo.data.commitTime}}</div>
+        <div>{{baseInfo.logDate}}</div>
         <div>日志下发时间</div>
-        <div>{{baseInfo.data.releaseTime}}</div>
+        <div>{{ baseInfo.logSignDate }}</div>
         <div>是否逾期</div>
-        <div>{{baseInfo.data.isDelay}}</div>
+        <div>{{baseInfo.isDelay}}</div>
       </div>
       <div class="flex h-24 items-center">
         <div class="w-1/4 h-full flex justify-center items-center" style="background-color: #F6F6F6">日志内容</div>
-        <div  class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">{{ baseInfo.data.logContent }}</div>
+        <div class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">{{ baseInfo.logContent }}</div>
       </div>
     </el-dialog>
   </DefaultLayout>

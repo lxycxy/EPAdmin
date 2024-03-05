@@ -6,16 +6,19 @@ import * as userAPI from '@/api/user'
 import useUserStore from "@/stores/user";
 import router from "@/router";
 const userStore = useUserStore()
+
+const isLogin = sessionStorage.getItem('isLogin');
+if (isLogin) router.push({name : 'Dashboard'})
 const login = () => {
   userAPI.login()
       .then((resp) => {
         userStore.$patch({
-          userId: resp.userId,
-          username: resp.username,
-          role: resp.role,
+          userId: resp.data.userId,
+          username: resp.data.username,
+          role: resp.data.role,
         })
-        console.log(resp.username)
-        sessionStorage.setItem('isLogin', resp.username);
+        console.log(resp.data.username)
+        sessionStorage.setItem('isLogin', resp.data.username);
         tipMessage('登录成功', 'success');
         router.push({name :'Dashboard'})
   })

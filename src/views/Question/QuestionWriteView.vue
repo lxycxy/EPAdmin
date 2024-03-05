@@ -4,115 +4,74 @@ import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
 import QuestionTableLayout from "@/views/Question/QuestionTableLayout.vue";
 import WriteIcon from "@/components/Icons/WriteIcon.vue";
+import type{PaginationInfo} from "@/utils/Pagination";
+import type{ProblemItemData} from "@/api/problem";
+import * as problemApi from "@/api/problem";
 
 
-const baseInfo = reactive( {
-  data: {
-    projectName : '',
-    commitTime: '',
-    questionContent: '',
-  }
-})
+let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
+let baseInfo: ProblemItemData = reactive({}) as ProblemItemData
 const dialogVisible = ref(false);
 const writeModel = ref(false)
 const columnsHeader = ref([
+  {
+    title: '问题编号',
+    index:'problemId'
+  },
   {
     title: '项目名称',
     index: 'projectName'
   },
   {
     title: '问题类型',
-    index: 'questionType'
+    index: 'problemType'
   },
   {
     title: '状态',
-    index: 'status'
+    index: 'problemState'
   },
   {
     title: '问题描述',
-    index: 'questionContent'
+    index: 'problemDescription'
   },
   {
-    title: '填报人',
-    index: 'person'
-  },
-  {
-    title: '填报单位',
-    index: 'commitUnit'
+    title: '处理人',
+    index: 'problemHandler'
   },
   {
     title: '创建时间',
-    index: 'createTime'
+    index: 'problemSendDate'
   }
 
 ])
 
-const originData = ref([
-  {
-    projectName: '项目1',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  },
-  {
-    projectName: '项目2',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  }, {
-    projectName: '项目3',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  }, {
-    projectName: '项目1',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  }, {
-    projectName: '项目1',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  }, {
-    projectName: '项目1',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  }, {
-    projectName: '项目1',
-    questionType: "....问题",
-    status: '待处理',
-    questionContent: '......content....',
-    person: 'lxx',
-    createTime: 'xxxxx:xxx',
-    commitUnit: 'xxxx公司'
-  },
-])
+const originData = ref<ProblemItemData[]>([]);
+const tableData = ref<ProblemItemData[]>([]);
 
-let tableData = ref([...originData.value])
+const getProblemData = () => {
+  problemApi.getProblemData()
+      .then((resp) => {
+        originData.value = resp.data
+        pageInfo.totalCount = originData.value.length;
+        pageInfo.pageSize = 8;
+        pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+        pageInfo.currentPage = 1;
+        tableData.value = [...originData.value]
+            .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+      })
+      .catch(resp => {
+        console.log(resp)
+      })
+}
+
+getProblemData();
 
 const handlePageChange = (currentPage : number) => {
-  console.log(currentPage);
+  pageInfo.currentPage = currentPage;
+  tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
+
 
 const cancelCommit = () => {
   writeModel.value = false;
@@ -120,13 +79,13 @@ const cancelCommit = () => {
 }
 
 const openWriteDialog = (row : any) => {
-  baseInfo.data = {...row}
+  baseInfo = {...row}
   dialogVisible.value = true
   writeModel.value = true
 }
 
 const openDialog = (row : any) => {
-  baseInfo.data = {...row}
+  baseInfo = {...row}
   dialogVisible.value = true
 }
 
@@ -134,9 +93,9 @@ const searchData = (data : any) => {
 
   tableData.value = tableData.value.filter(
       item => {
-        const typeOK = data.questionType == '' || item.questionType == data.questionType
+        const typeOK = data.questionType == '' || item.problemType == data.questionType
         const projectNameOK = data.projectName == '' || item.projectName == data.projectName
-        const statusOk = data.status == '' || item.status == data.status
+        const statusOk = data.status == '' || item.problemState == data.status
         console.log(typeOK && projectNameOK && statusOk)
         return typeOK && projectNameOK && statusOk
       }
@@ -146,7 +105,9 @@ const searchData = (data : any) => {
 }
 
 const handleReset = () => {
+  pageInfo.currentPage = 1;
   tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
 </script>
@@ -171,7 +132,7 @@ const handleReset = () => {
           v-for="(row, index) in tableData" :key="index"
       >
         <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
-          {{row[idx.index]}}
+          {{ row[idx.index as keyof typeof row] }}
         </td>
         <td>
           <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
@@ -184,7 +145,12 @@ const handleReset = () => {
       暂无数据
     </div>
 
-    <Pagination @pageChange="handlePageChange" pageCount="8" total="97"></Pagination>
+    <Pagination
+        @pageChange="handlePageChange"
+        :pageCount="pageInfo.totalPages"
+        :total="pageInfo.totalCount"
+        :currentPage="pageInfo.currentPage"
+    ></Pagination>
 
     <el-dialog
         v-model="dialogVisible"
@@ -194,22 +160,22 @@ const handleReset = () => {
     >
       <div class="grid grid-cols-4 infoBoxParent">
         <div>项目名称</div>
-        <div>{{ baseInfo.data.projectName }}</div>
+        <div>{{ baseInfo.projectName }}</div>
         <div>问题类型</div>
-        <div>{{baseInfo.data.commitTime }}</div>
+        <div>{{baseInfo.problemType }}</div>
       </div>
       <div class="flex h-24 items-center">
         <div class="w-1/4 h-full flex justify-center items-center" style="background-color: #F6F6F6">问题描述</div>
         <div class="w-3/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8;">
           <el-input
               v-if="writeModel"
-              v-model="baseInfo.data.questionContent"
+              v-model="baseInfo.problemDescription"
               type="textarea"
               style="height: 100%"
               resize="none"
               rows="4"
           />
-          <span v-else>{{baseInfo.data.questionContent}}</span>
+          <span v-else>{{baseInfo.problemDescription}}</span>
         </div>
       </div>
       <div v-if="writeModel" class="flex justify-end space-x-6 h-10 mt-5">
