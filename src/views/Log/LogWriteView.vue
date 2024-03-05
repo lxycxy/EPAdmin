@@ -110,30 +110,33 @@ const handleReset = () => {
 
 <template>
   <DefaultLayout>
+
     <LogTableLayout @clickSearch="searchData" @clickReset="handleReset"></LogTableLayout>
-    <table class="w-full mt-5 rounded-lg">
-      <tr class="h-14 bg-slate-200 dark:bg-form-strokedark">
-        <th v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
-        <th>操作</th>
-      </tr>
-      <tr
-          class="bg-white dark:bg-boxdark dark:text-white dark:hover:text-black hover:bg-slate-200 border-slate-200 transition odd:border-b odd:border-t h-10 text-center"
-          v-for="(row, index) in tableData" :key="index"
-      >
-        <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
-          <a v-if="idx.index === 'logId'" class="text-primary hover:cursor-pointer" @click="openDialog(row)" > {{ row[idx.index as keyof typeof row] }} </a>
-          <div v-else>{{ row[idx.index as keyof typeof row]}}</div>
-        </td>
-        <td>
-          <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
-            查看
-          </a>
-          <a v-if="row.logState==='未填报'" class="text-primary transition hover:font-bold cursor-pointer" @click="openWriteDialog(row)">
-            填写
-          </a>
-        </td>
-      </tr>
-    </table>
+    <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">
+      <table class="data-table w-full mt-3 rounded-lg">
+        <tr class="h-14 bg-slate-100 dark:bg-form-strokedark">
+          <th v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
+          <th>操作</th>
+        </tr>
+        <tr
+            class="bg-white dark:bg-boxdark dark:text-white dark:hover:text-black hover:bg-slate-100 transition h-10 text-center"
+            v-for="(row, index) in tableData" :key="index"
+        >
+          <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
+            <a v-if="idx.index === 'logId'" class="text-primary hover:cursor-pointer" @click="openDialog(row)" > {{ row[idx.index as keyof typeof row] }} </a>
+            <div v-else>{{ row[idx.index as keyof typeof row]}}</div>
+          </td>
+          <td>
+            <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
+              查看
+            </a>
+            <a v-if="row.logState==='未填报'" class="text-primary transition hover:font-bold cursor-pointer" @click="openWriteDialog(row)">
+              填写
+            </a>
+          </td>
+        </tr>
+      </table>
+    </div>
     <div v-if="tableData.length === 0" class="h-48 border-t flex items-center justify-center border-slate-300 text-2xl font-bold bg-slate-200 w-full">
       暂无数据
     </div>

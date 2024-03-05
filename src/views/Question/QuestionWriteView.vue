@@ -7,6 +7,7 @@ import WriteIcon from "@/components/Icons/WriteIcon.vue";
 import type{PaginationInfo} from "@/utils/Pagination";
 import type{ProblemItemData} from "@/api/problem";
 import * as problemApi from "@/api/problem";
+import EButton from "@/components/Buttons/EButton.vue";
 
 
 let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
@@ -117,30 +118,32 @@ const handleReset = () => {
     <QuestionTableLayout @clickSearch="searchData" @clickReset="handleReset">
     </QuestionTableLayout>
     <div class="h-10 mt-3">
-      <button @click="openWriteDialog" class="bg-meta-5 text-white rounded-xl hover:ring-1 hover:-translate-y-1 transition ring-meta-5 h-full w-20 justify-around flex items-center">
+      <EButton @click="openWriteDialog" class="bg-meta-5 h-full w-20">
         <WriteIcon class="h-4 w-4"/>
         填报
-      </button>
+      </EButton>
     </div>
-    <table class="w-full mt-3 rounded-lg">
-      <tr class="h-14 bg-slate-200 dark:bg-form-strokedark">
-        <th v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
-        <th>操作</th>
-      </tr>
-      <tr
-          class="bg-white dark:bg-boxdark dark:text-white dark:hover:text-black hover:bg-slate-200 border-slate-200 transition odd:border-b odd:border-t h-10 text-center"
-          v-for="(row, index) in tableData" :key="index"
-      >
-        <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
-          {{ row[idx.index as keyof typeof row] }}
-        </td>
-        <td>
-          <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
-            查看
-          </a>
-        </td>
-      </tr>
-    </table>
+    <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">
+      <table class="data-table w-full mt-3 rounded-lg">
+        <tr class="h-14 bg-slate-100 dark:bg-form-strokedark">
+          <th v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
+          <th>操作</th>
+        </tr>
+        <tr
+            class="bg-white dark:bg-boxdark dark:text-white dark:hover:text-black hover:bg-slate-100 border-slate-200 transition h-10 text-center"
+            v-for="(row, index) in tableData" :key="index"
+        >
+          <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
+            {{ row[idx.index as keyof typeof row] }}
+          </td>
+          <td>
+            <a @click="openDialog(row)" class="text-meta-3 cursor-pointer mr-2 hover:font-semibold ">
+              查看
+            </a>
+          </td>
+        </tr>
+      </table>
+    </div>
     <div v-if="tableData.length === 0" class="h-48 border-t flex items-center justify-center border-slate-300 text-2xl font-bold bg-slate-200 w-full">
       暂无数据
     </div>

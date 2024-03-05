@@ -14,3 +14,7 @@ export interface logItemData {
 export const getLogData = () => {
     return request.get('/mock/logTable.json');
 }
+
+export const getProjectData = () => {
+    return request.get('/mock/project.json');
+}
