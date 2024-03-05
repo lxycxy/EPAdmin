@@ -47,7 +47,6 @@ const range = (currentIndex: number) => {
 
   }
   createArr.sort();
-  console.log(createArr)
   return createArr;
 }
 

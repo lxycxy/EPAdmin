@@ -72,7 +72,7 @@ import InputGroup from '@/components/Auths/InputGroup.vue'
 
         <div class="mb-5 mt-6">
           <button
-            class="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white transition duration-1000 ease-in-out hover:bg-opacity-90 hover:font-bold"
+            class="w-full hover:ring-1 ring-primary hover:-translate-y-1 cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white transition ease-in-out hover:font-bold"
           >
             注册
           </button>

@@ -176,7 +176,18 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = `Ep Admin ${to.meta.title} | 项目工程管理系统`
-  next()
+  const token = sessionStorage.getItem('isLogin');
+
+  if (token) {
+    next()
+  } else {
+    console.log('no token')
+    if (to.path === '/auth/signin' || to.path === '/auth/signup') {
+      next()
+    } else {
+      next('/auth/signin')
+    }
+  }
 })
 
 export default router

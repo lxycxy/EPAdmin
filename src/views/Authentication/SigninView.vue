@@ -2,7 +2,29 @@
 import DefaultAuthCard from '@/components/Auths/DefaultAuthCard.vue'
 import InputGroup from '@/components/Auths/InputGroup.vue'
 import {tipMessage} from "@/utils/TipMessage";
+import * as userAPI from '@/api/user'
+import useUserStore from "@/stores/user";
+import router from "@/router";
+const userStore = useUserStore()
+const login = () => {
+  userAPI.login()
+      .then((resp) => {
+        userStore.$patch({
+          userId: resp.userId,
+          username: resp.username,
+          role: resp.role,
+        })
+        console.log(resp.username)
+        sessionStorage.setItem('isLogin', resp.username);
+        tipMessage('登录成功', 'success');
+        router.push({name :'Dashboard'})
+  })
+      .catch((resp) => {
+        console.log(resp)
+        tipMessage('登录出现错误', 'error')
+      })
 
+}
 </script>
 
 <template>
@@ -49,9 +71,9 @@ import {tipMessage} from "@/utils/TipMessage";
 
         <div class="mb-5 mt-6">
           <button
-              @click="tipMessage('登录成功', 'info')"
+              @click="login"
               value="Sign In"
-              class="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white transition duration-1000 hover:bg-opacity-90 hover:font-bold"
+              class="w-full cursor-pointer hover:ring-1 ring-primary hover:-translate-y-1 rounded-lg border border-primary bg-primary p-4 font-medium text-white transition hover:font-bold"
           >
             登录
           </button>
@@ -61,6 +83,5 @@ import {tipMessage} from "@/utils/TipMessage";
             <router-link to="/auth/signup" class="text-primary">没有账号? 点击注册</router-link>
           </p>
         </div>
-
     </DefaultAuthCard>
 </template>

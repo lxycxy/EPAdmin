@@ -5,65 +5,159 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import SearchInput from "@/components/Input/SearchInput.vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
 
+interface ProjectData {
+  projectCost: number;
+  projectPlanFinishtime: string;
+  projectPlanStarttime: string;
+  projectRealFinishtime: string;
+  projectRealStarttime: string;
+  managerPhone: string;
+  projectCurrentPhase: string;
+  projectDescription: string;
+  projectId: string;
+  projectManager: string;
+  projectName: string;
+  projectPlace: string;
+  projectProgress: number;
+  projectState: string;
+  warming: number;
+}
+
+const searchConditions = ref({
+  projectName: '',
+  status: '',
+  currentStatus: '',
+  site: ''
+})
+
 const tableData = ref([
   {
-    name: '厦门翔安新机场片区地下综合管廊PPP项目',
-    cost: '86360.14',
-    status: '前期',
-    currentStage: '方案设计',
-    warning: 0,
-    progress: 80,
-    site: '厦门，翔安',
-    planTime: '2016-06-30',
-    realTime: '2016-06-30'
+    projectCost: 86360.14,
+    projectPlanFinishtime: '2023-8-2',
+    projectPlanStarttime: '2023-8-2',
+    projectRealFinishtime: '2023-8-2',
+    projectRealStarttime: '2023-8-2',
+    managerPhone: '18609878902',
+    projectCurrentPhase: '方案设计',
+    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
+    projectId: 'GTF6701',
+    projectManager: '张文文',
+    projectName: '大嶝机场建设',
+    projectPlace: '厦门，翔安',
+    projectProgress: 90,
+    projectState: '前期',
+    warming: 0
   },
   {
-    name: '厦门翔安新机场片区地下综合管廊PPP项目',
-    cost: '86360.14',
-    status: '前期',
-    currentStage: '方案设计',
-    warning: 0,
-    progress: 35,
-    site: '厦门，翔安',
-    planTime: '2016-06-30',
-    realTime: '2016-06-30'
+    projectCost: 86360.14,
+    projectPlanFinishtime: '2023-8-2',
+    projectPlanStarttime: '2023-8-2',
+    projectRealFinishtime: '2023-8-2',
+    projectRealStarttime: '2023-8-2',
+    managerPhone: '18609878902',
+    projectCurrentPhase: '方案设计',
+    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
+    projectId: 'GTF6701',
+    projectManager: '张文文',
+    projectName: '大嶝机场建设',
+    projectPlace: '厦门，翔安',
+    projectProgress: 65,
+    projectState: '前期',
+    warming: 1
   },
   {
-    name: '厦门翔安新机场片区地下综合管廊PPP项目',
-    cost: '86360.14',
-    status: '前期',
-    currentStage: '方案设计',
-    warning: 1,
-    progress: 70,
-    site: '厦门，翔安',
-    planTime: '2016-06-30',
-    realTime: '2016-06-30'
+    projectCost: 86360.14,
+    projectPlanFinishtime: '2023-8-2',
+    projectPlanStarttime: '2023-8-2',
+    projectRealFinishtime: '2023-8-2',
+    projectRealStarttime: '2023-8-2',
+    managerPhone: '18609878902',
+    projectCurrentPhase: '方案设计',
+    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
+    projectId: 'GTF6701',
+    projectManager: '张文文',
+    projectName: '大嶝机场建设',
+    projectPlace: '厦门，翔安',
+    projectProgress: 70,
+    projectState: '前期',
+    warming: 2
   },
   {
-    name: '厦门翔安新机场片区地下综合管廊PPP项目',
-    cost: '86360.14',
-    status: '前期',
-    currentStage: '方案设计',
-    warning: 1,
-    progress: 100,
-    site: '厦门，翔安',
-    planTime: '2016-06-30',
-    realTime: '2016-06-30'
-  },
-  {
-    name: '厦门翔安新机场片区地下综合管廊PPP项目',
-    cost: '86360.14',
-    status: '前期',
-    currentStage: '方案设计',
-    warning: 2,
-    progress: 30,
-    site: '厦门，翔安',
-    planTime: '2016-06-30',
-    realTime: '2016-06-30'
-  },
+    projectCost: 86360.14,
+    projectPlanFinishtime: '2023-8-2',
+    projectPlanStarttime: '2023-8-2',
+    projectRealFinishtime: '2023-8-2',
+    projectRealStarttime: '2023-8-2',
+    managerPhone: '18609878902',
+    projectCurrentPhase: '方案设计',
+    projectDescription: '项目起点位于翔安南路，终点位于机场快速路，全长6公里，城市快速路，建设内容为：全线高架桥、翔安南路立交、滨海东大道立交、跨海大桥和地面辅道层。',
+    projectId: 'GTF6701',
+    projectManager: '张文文',
+    projectName: '大嶝机场建设',
+    projectPlace: '厦门，翔安',
+    projectProgress: 30,
+    projectState: '前期',
+    warming: 1
+  }
 ])
+const detailData = ref<ProjectData>({
+  projectCost: 0,
+  projectPlanFinishtime: '',
+  projectPlanStarttime: '',
+  projectRealFinishtime: '',
+  projectRealStarttime: '',
+  managerPhone: '',
+  projectCurrentPhase: '',
+  projectDescription: '',
+  projectId: '',
+  projectManager: '',
+  projectName: '',
+  projectPlace: '',
+  projectProgress: 0,
+  projectState: '',
+  warming: 0
+})
 
-const value = ref('')
+const currentPhaseOptions = [
+  {
+    value: '方案设计',
+    label: '方案设计',
+  },
+  {
+    value: '路基处理',
+    label: '路基处理',
+  },
+  {
+    value: '基层处理',
+    label: '基层处理',
+  },
+  {
+    value: '面层处理',
+    label: '面层处理',
+  },
+  {
+    value: '地基与基础',
+    label: '地基与基础',
+  },
+]
+const stateOptions = [
+  {
+    value: '前期',
+    label: '前期',
+  },
+  {
+    value: '在建',
+    label: '在建',
+  },
+  {
+    value: '后期',
+    label: '后期',
+  },
+  {
+    value: '竣工',
+    label: '竣工',
+  }
+]
 
 const options = [
   {
@@ -86,13 +180,45 @@ const options = [
 
 const addDialogVisible = ref(false)
 
-const addProject = () => {
+const detailDialogVisible = ref(false);
+
+const addProjectDialog = () => {
   addDialogVisible.value = true;
+
 }
 
-const value1 = ref('')
+const editProjectDialog = (item: ProjectData) => {
+  addDialogVisible.value = true;
+  detailData.value = item;
+}
 
-const textarea = ref('')
+const showDetail = (item: ProjectData) => {
+  detailDialogVisible.value = true;
+  detailData.value = item
+}
+
+const closeAddProjectDialog = () => {
+  addDialogVisible.value = false;
+  detailData.value = {
+    projectCost: 0,
+    projectPlanFinishtime: '',
+    projectPlanStarttime: '',
+    projectRealFinishtime: '',
+    projectRealStarttime: '',
+    managerPhone: '',
+    projectCurrentPhase: '',
+    projectDescription: '',
+    projectId: '',
+    projectManager: '',
+    projectName: '',
+    projectPlace: '',
+    projectProgress: 0,
+    projectState: '',
+    warming: 0
+  }
+}
+
+const value = ref('')
 
 const handlePageChange = (currentPage: number) => {
   console.log(currentPage);
@@ -104,34 +230,38 @@ const pageTitle = ref('项目库')
 <template>
   <DefaultLayout>
     <!-- 新增项目对话框 -->
-    <el-dialog v-model="addDialogVisible" title="新建项目" width="800" align-center class="p-10">
+    <el-dialog v-model="addDialogVisible" title="新建项目" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
       <div class="rounded-lg px-6">
         <p>基本信息</p>
 
         <!-- 填报内容 -->
         <div class="grid grid-cols-12 mt-5">
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-red">*</span><span class="text-xs">吊毛</span>
+            <span class="text-red">*</span><span class="text-xs">项目名称</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" />
-          </div>
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
+              v-model="detailData.projectName"
+              />
+            </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">项目编号</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
+              v-model="detailData.projectId"
+              />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">当前阶段</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-select v-model="value" class="w-full text-xs" placeholder="选择当前状态" size="small">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+            <el-select v-model="detailData.projectCurrentPhase" class="w-full text-xs" placeholder="" size="small">
+              <el-option v-for="item in currentPhaseOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
 
@@ -139,8 +269,8 @@ const pageTitle = ref('项目库')
             <span class="text-xs">项目状态</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-select v-model="value" class="w-full text-xs" placeholder="选择当前状态" size="small">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+            <el-select v-model="detailData.projectState" class="w-full text-xs" placeholder="" size="small">
+              <el-option v-for="item in stateOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
 
@@ -149,7 +279,9 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
+              v-model="detailData.projectCost"
+              />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -157,14 +289,16 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="number"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
+              v-model="detailData.projectProgress"
+              />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">项目所在地</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-select v-model="value" class="w-full text-xs" placeholder="选择当前状态" size="small">
+            <el-select v-model="value" class="w-full text-xs" placeholder="" size="small">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
@@ -173,28 +307,28 @@ const pageTitle = ref('项目库')
             <span class="text-xs">计划开工时间</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-date-picker v-model="value1" type="date" placeholder="Pick a day" size="small" />
+            <el-date-picker v-model="detailData.projectPlanStarttime" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">计划完工时间</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-date-picker v-model="value1" type="date" placeholder="Pick a day" size="small" />
+            <el-date-picker v-model="detailData.projectPlanFinishtime" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">实际开工时间</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-date-picker v-model="value1" type="date" placeholder="Pick a day" size="small" />
+            <el-date-picker v-model="detailData.projectRealStarttime" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">实际完工时间</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-date-picker v-model="value1" type="date" placeholder="Pick a day" size="small" />
+            <el-date-picker v-model="detailData.projectRealFinishtime" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -209,7 +343,9 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
+              v-model="detailData.projectManager"
+              />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -217,28 +353,161 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.managerPhone"
+              />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-20 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-red">*</span><span class="text-xs">联系电话</span>
+            <span class="text-red">*</span><span class="text-xs">项目概述</span>
           </div>
           <div class="col-span-10 flex items-center h-20 px-2 border border-slate-300">
-            <el-input
-              v-model="textarea"
-              resize="none"
-              type="textarea"
-              placeholder="Please input"
-              maxlength="200"
-              show-word-limit
-            />
+            <el-input v-model="detailData.projectDescription" resize="none" type="textarea" placeholder="" maxlength="200" show-word-limit />
           </div>
 
+          <div class="col-start-11 col-end-11">
+            <button
+              class="flex justify-around items-center bg-primary text-white rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-opacity-50">
+              确定
+            </button>
+          </div>
+          <div class="col-start-12 col-end-12">
+            <button
+              class="flex justify-around items-center bg-white text-black border rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-gray">
+              取消
+            </button>
+          </div>
 
         </div>
       </div>
 
     </el-dialog>
+
+    <!-- 项目信息查看对话框 -->
+    <el-dialog v-model="detailDialogVisible" title="项目详情" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
+      <div class="rounded-lg px-6 mb-5">
+        <p>基本信息</p>
+
+        <!-- 项目内容 -->
+        <div class="grid grid-cols-12 mt-5">
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">项目名称</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectName }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">项目编号</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectId }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">当前阶段</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectCurrentPhase }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">项目状态</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectState }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">项目金额(万元)</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectCost }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-red">*</span><span class="text-xs">项目进度(%)</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectProgress }}</span><span>%</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">项目所在地</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectPlace }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">计划开工时间</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectPlanStarttime }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">计划完工时间</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectPlanFinishtime }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">实际开工时间</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectRealStarttime }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">实际完工时间</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectRealFinishtime }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">附件</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <button
+              class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:bg-opacity-50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
+                <path d="M11 16h2V7h3l-4-5-4 5h3z">
+                </path>
+                <path
+                  d="M5 22h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2z">
+                </path>
+              </svg>
+              下载
+            </button>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-xs">项目负责人</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectManager }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-red">*</span><span class="text-xs">联系电话</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.managerPhone }}</span>
+          </div>
+
+          <div class="col-span-2 bg-slate-100 w-full h-20 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-red">*</span><span class="text-xs">项目概况</span>
+          </div>
+          <div class="col-span-10 flex items-center h-20 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectDescription }}</span>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
+
 
 
     <div class="mx-auto max-w-400">
@@ -248,25 +517,25 @@ const pageTitle = ref('项目库')
 
       <!-- 搜索框 -->
       <div class="rounded-2xl bg-white dark:bg-boxdark flex items-center flex-wrap">
-        <SearchInput class="text-xs max-w-100" label="项目名称" placeholder="输入项目名称"></SearchInput>
+        <SearchInput class="text-xs max-w-100" label="项目名称" placeholder="输入项目名称" v-model="searchConditions.projectName"></SearchInput>
 
         <div class="flex items-center">
           <p class="text-xs ml-3">项目状态</p>
-          <el-select v-model="value" class="m-2 max-w-100" placeholder="选择项目状态" style="width: 150px">
-            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="searchConditions.status" class="m-2 max-w-100" placeholder="" style="width: 150px">
+            <el-option v-for="item in stateOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
 
         <div class="flex items-center">
           <p class="text-xs ml-3">当前状态</p>
-          <el-select v-model="value" class="m-2 max-w-60" placeholder="选择当前状态" style="width: 150px">
-            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="searchConditions.currentStatus" class="m-2 max-w-60" placeholder="" style="width: 150px">
+            <el-option v-for="item in currentPhaseOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
 
         <div class="flex items-center">
           <p class="text-xs ml-3">所在区域</p>
-          <el-select v-model="value" class="m-2 max-w-60" placeholder="选择所在区域" style="width: 150px">
+          <el-select v-model="searchConditions.site" class="m-2 max-w-60" placeholder="" style="width: 150px">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
@@ -292,7 +561,7 @@ const pageTitle = ref('项目库')
 
       <!-- 操作区 -->
       <div class="flex items-center flex-wrap mt-2">
-        <button @click="addProject()"
+        <button @click="addProjectDialog()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" height="20" width="17.5" viewBox="0 0 448 512">
             <path fill="#ffffff"
@@ -375,39 +644,40 @@ const pageTitle = ref('项目库')
                 <p class="text-xs text-black">{{ index + 1 }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.name }}</p>
+                <p class="text-xs text-primary hover:underline cursor-pointer" @click="showDetail(item)">{{
+      item.projectName }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.cost }}</p>
+                <p class="text-xs text-black">{{ item.projectCost }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.status }}</p>
+                <p class="text-xs text-black">{{ item.projectState }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.currentStage }}</p>
+                <p class="text-xs text-black">{{ item.projectCurrentPhase }}</p>
               </td>
               <td class="flex justify-center items-center text-center py-2 px-2">
-                <div v-if="item.warning === 0" class="rounded-full bg-green-500 w-8 h-8" style="transform: scale(0.8);">
+                <div v-if="item.warming === 0" class="rounded-full bg-green-500 w-8 h-8" style="transform: scale(0.8);">
                 </div>
-                <div v-if="item.warning === 1" class="rounded-full bg-yellow-300 w-8 h-8"
+                <div v-if="item.warming === 1" class="rounded-full bg-yellow-300 w-8 h-8"
                   style="transform: scale(0.8);"></div>
-                <div v-if="item.warning === 2" class="rounded-full bg-red w-8 h-8" style="transform: scale(0.8);"></div>
+                <div v-if="item.warming === 2" class="rounded-full bg-red w-8 h-8" style="transform: scale(0.8);"></div>
               </td>
               <td class="text-center py-2 px-2">
-                <el-progress :text-inside="true" :stroke-width="18" :percentage="item.progress" />
+                <el-progress :text-inside="true" :stroke-width="18" :percentage="item.projectProgress" />
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.site }}</p>
+                <p class="text-xs text-black">{{ item.projectPlace }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.planTime }}</p>
+                <p class="text-xs text-black">{{ item.projectPlanStarttime }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.realTime }}</p>
+                <p class="text-xs text-black">{{ item.projectRealStarttime }}</p>
               </td>
               <td class="flex-between text-center py-2 px-2">
-                <span class="text-xs text-primary underline"> 编辑 </span>
-                <span class="ml-1 text-xs text-primary underline"> 删除 </span>
+                <span class="text-xs text-primary underline cursor-pointer" @click="editProjectDialog(item)"> 编辑 </span>
+                <span class="ml-1 text-xs text-primary underline cursor-pointer"> 删除 </span>
               </td>
             </tr>
           </tbody>
@@ -427,6 +697,4 @@ const pageTitle = ref('项目库')
 
 </template>
 
-<style scoped>
-  
-</style>
+<style scoped></style>

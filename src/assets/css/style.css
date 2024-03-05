@@ -246,3 +246,13 @@ input[type='search']::-webkit-search-cancel-button {
 [x-cloak] {
     display: none !important;
 }
+.infoBoxParent div {
+    height: 3rem;
+    line-height: 3rem;
+    text-align: center;
+    background-color: #F6F6F6;
+    border: 0.5px solid #E8E8E8;
+}
+.infoBoxParent div:nth-child(even) {
+    background-color: #FFFFFF;
+}
