@@ -1,4 +1,4 @@
-import request, { BASE_URL } from "@/utils/request";
+import request from "@/utils/request";
 import type { ProjectData } from "./project";
 
 export interface ContractData {
@@ -46,7 +46,7 @@ export interface PayRecord {
 }
 
 export const getContractData = () => {
-    return request.get(BASE_URL + '/crebas/contract/listAll')
+    return request.get('/crebas/contract/listAll')
 }
 
 export const getPayRecordData = () => {

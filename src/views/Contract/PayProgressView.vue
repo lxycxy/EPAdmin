@@ -252,6 +252,7 @@ const pageTitle = ref('合同支付进度')
       </div>
 
       <div class="max-h-400 overflow-y-auto">
+        <!-- 表格 -->
         <table class="w-full table-wrapper rounded-lg">
           <!-- 表头 -->
           <thead>

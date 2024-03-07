@@ -1,4 +1,4 @@
-import request, { BASE_URL } from "@/utils/request";
+import request from "@/utils/request";
 
 export interface ProjectData {
   projectCost: number;
@@ -26,7 +26,7 @@ export interface SearchConditions {
 }
 
 export const getProjectData = () => {
-  return request.get(BASE_URL + '/crebas/project/listAll')
+  return request.get('/crebas/project/listAll')
 }
 
 export const getProjectPlace = () => {
