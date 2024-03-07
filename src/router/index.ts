@@ -11,7 +11,7 @@ import LogInquireView from '@/views/Log/LogInquireView.vue'
 import QuestionWriteView from '@/views/Question/QuestionWriteView.vue'
 import QuestionHandleView from '@/views/Question/QuestionHandleView.vue'
 import QualityView from '@/views/Quality/QualityView.vue'
-import ProfileView from '@/views/ProfileView.vue'
+import ProfileView from '@/views/User/ProfileView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import UserManageView from "@/views/User/UserManage.vue";
