@@ -141,12 +141,7 @@ const confirmCommit = () => {
   baseInfo.logSignDate = recoverGTM8(new Date());
   baseInfo.logState = '未填报'
   baseInfo.logBeyondDate = recoverGTM8(baseInfo.logBeyondDate)
-  baseInfo.logId = '31456'
-  baseInfo.project = {
-    projectId: baseInfo.projectId
-  }
-
-  console.log(baseInfo)
+  baseInfo.project = {projectId: baseInfo.projectId}
 
   logApi.createLog(baseInfo)
       .then(resp => {

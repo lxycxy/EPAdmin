@@ -198,7 +198,7 @@ const clickClose = (row : ProblemItemData) => {
                 @confirm="clickClose(row)"
             >
               <template #reference >
-                <a  class="text-meta-7 cursor-pointer hover:font-semibold">
+                <a class="text-meta-7 cursor-pointer hover:font-semibold">
                   关闭
                 </a>
               </template>

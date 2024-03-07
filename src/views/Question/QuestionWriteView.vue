@@ -136,7 +136,6 @@ const confirmCommit = () => {
 
   baseInfo.problemSenddate = recoverGTM8(new Date())
   baseInfo.project = {projectId: baseInfo.projectId}
-  baseInfo.problemId = 'p123'
   baseInfo.problemState = '待处理'
   baseInfo.problemSender = useUserStore().username
 
