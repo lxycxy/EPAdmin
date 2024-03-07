@@ -56,7 +56,7 @@ onClickOutside(target, () => {
       <ul class="flex flex-col gap-5 border-b border-stroke px-6 py-4 dark:border-strokedark">
         <li>
           <router-link
-            to="/profile"
+            to="/user/profile"
             class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
           >
             <svg
