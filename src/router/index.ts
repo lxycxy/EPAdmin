@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import SigninView from '@/views/Authentication/SigninView.vue'
-import SignupView from '@/views/Authentication/SignupView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import ProjectView from '@/views/Project/ProjectView.vue'
 import LedgerView from '@/views/Contract/LedgerView.vue'
@@ -129,14 +128,6 @@ const routes = [
       title: 'Signin'
     }
   },
-  {
-    path: '/auth/signup',
-    name: 'signup',
-    component: SignupView,
-    meta: {
-      title: 'Signup'
-    }
-  },
 ]
 
 const router = createRouter({
@@ -149,13 +140,12 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = `Ep Admin ${to.meta.title} | 项目工程管理系统`
-  const token = sessionStorage.getItem('isLogin');
+  const isLogin = sessionStorage.getItem('isLogin');
 
-  if (token) {
+  if (isLogin) {
     next()
   } else {
-    console.log('no token')
-    if (to.path === '/auth/signin' || to.path === '/auth/signup') {
+    if (to.path === '/auth/signin') {
       next()
     } else {
       next('/auth/signin')

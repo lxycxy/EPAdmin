@@ -1,16 +1,14 @@
 import request from "@/utils/request";
-import axios from "axios";
 
 export interface UserItemData {
+    account: string
     username: string
+    password: string
     userId: string
     role: string
 }
-export const login = () => {
-    return axios({
-        method: 'get',
-        url: '/mock/user.json'
-    })
+export const login = (data : UserItemData) => {
+    return request.post('/crebas/account/login', data);
 }
 
 export const getUserData = () => {

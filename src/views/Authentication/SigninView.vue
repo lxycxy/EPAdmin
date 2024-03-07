@@ -5,52 +5,54 @@ import {tipMessage} from "@/utils/TipMessage";
 import * as userAPI from '@/api/user'
 import useUserStore from "@/stores/user";
 import router from "@/router";
+import {reactive} from "vue";
+import type {UserItemData} from "@/api/user";
+import {ElMessage} from "element-plus";
 const userStore = useUserStore()
 
 const isLogin = sessionStorage.getItem('isLogin');
 if (isLogin) router.push({name : 'Dashboard'})
+let loginForm:UserItemData = reactive({}) as UserItemData
 const login = () => {
-  userAPI.login()
+  userAPI.login(loginForm)
       .then((resp) => {
-        userStore.$patch({
-          userId: resp.data.userId,
-          username: resp.data.username,
-          role: resp.data.role,
-        })
-        console.log(resp.data.username)
-        sessionStorage.setItem('isLogin', resp.data.username);
-        tipMessage('登录成功', 'success');
-        router.push({name :'Dashboard'})
-  })
-      .catch((resp) => {
-        console.log(resp)
-        tipMessage('登录出现错误', 'error')
-      })
+        if (resp.status == 'OK') {
+          userStore.$patch({
+            userId: resp.data.login.userId,
+            username: resp.data.login.userName,
+            role: resp.data.login.role,
+          })
+          sessionStorage.setItem('isLogin', resp.data.username);
+          ElMessage({
+            message: resp.message,
+            type:"success"
+          })
+          router.push({name :'Dashboard'})
+        } else {
+          ElMessage({
+            message: resp.message,
+            type: "error"
+          })
+        }
 
+  })
 }
 </script>
 
 <template>
     <DefaultAuthCard subtitle="xxxx系统" title="登录">
-        <InputGroup label="用户账号" placeholder="输入您的用户账号">
+        <InputGroup v-model="loginForm.account" label="用户账号" placeholder="输入您的用户账号">
           <svg
-            class="fill-current"
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g opacity="0.5">
-              <path
-                d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
-                fill=""
-              />
-            </g>
+              width="22"
+              height="22"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 448 512">
+            <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+            <path fill="#b1b9c5" d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464H398.7c-8.9-63.3-63.3-112-129-112H178.3c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3z"/>
           </svg>
         </InputGroup>
 
-        <InputGroup label="密码" type="password" placeholder="输入您的密码">
+        <InputGroup v-model="loginForm.password" label="密码" type="password" placeholder="输入您的密码">
           <svg
             class="fill-current"
             width="22"
