@@ -18,6 +18,7 @@ import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import ModeTableView from "@/views/Pages/ModeTableView.vue";
+import UserManageView from "@/views/User/UserManage.vue";
 
 const routes = [
   {
@@ -85,7 +86,15 @@ const routes = [
     }
   },
   {
-    path: '/profile',
+    path: '/user/manage',
+    name: 'UserManage',
+    component: UserManageView,
+    meta: {
+      title: 'UserManage'
+    }
+  },
+  {
+    path: '/user/profile',
     name: 'profile',
     component: ProfileView,
     meta: {

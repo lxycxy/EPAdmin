@@ -5,14 +5,15 @@ const emits = defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="flex rounded-lg p-2.5 items-center">
-    <span class="mr-2">{{ props.label  }}</span>
+  <div class="flex rounded-lg w-full h-3/4 items-center">
+    <span v-if="props.label" class="mr-2">{{ props.label  }}</span>
     <input
         :type="props.type"
         :placeholder="props.placeholder"
         :value="props.modelValue"
         @input="emits('update:modelValue', $event.target.value)"
-        class="rounded-sm border-slate-300 border transition focus:ring-slate-300 focus:ring-2 bg-transparent py-2 pl-3 pr-10 outline-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white"
+        :class="props.label ? '' : 'w-full'"
+        class="h-full pl-2 rounded-sm border-slate-300 border transition focus:ring-slate-300 focus:ring-2 bg-transparent outline-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white"
     />
     <slot></slot>
   </div>

@@ -2,17 +2,21 @@
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
-import LogTableLayout from "@/views/Log/LogTableLayout.vue";
-import * as logApi from '@/api/log'
+import * as logApi from '@/api/log';
+import * as projectApi from '@/api/project'
 import type {logItemData} from "@/api/log";
 import type {PaginationInfo} from "@/utils/Pagination";
 import SendIcon from "@/components/Icons/SendIcon.vue";
 import EButton from "@/components/Buttons/EButton.vue";
+import type {Options} from "@/utils/Options";
+import {ElMessage} from "element-plus";
+import InquireLogTableLayout from "@/views/Log/InquireLogTableLayout.vue";
+import {recoverGTM8} from "@/utils/utils";
+
 
 let baseInfo: logItemData = reactive({}) as logItemData;
 const dialogVisible = ref(false);
 const writeDialogVisible = ref(false);
-
 
 const columnsHeader = ref([
   {
@@ -44,19 +48,18 @@ const columnsHeader = ref([
 let pageInfo : PaginationInfo = reactive({}) as PaginationInfo
 const originData = ref<logItemData[]>([]);
 const tableData = ref<logItemData[]> ([]);
-const options = ref([]);
+const options = ref<Options[]>([]);
 
 const getLogTableData = () => {
     logApi.getLogData()
         .then(resp => {
-          originData.value = resp.data
-        
-          pageInfo.totalCount = originData.value.length;
-          pageInfo.pageSize = 8;
-          pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
-          pageInfo.currentPage = 1;
-          tableData.value = [...originData.value]
-              .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+          originData.value = resp.data.logs
+          for (let item of originData.value) {
+            item.projectName = item.project.projectName
+            item.projectId = item.project.projectId
+          }
+
+          computedPaginationInfo(originData.value.length)
         })
         .catch(resp => {
           console.log(resp)
@@ -65,10 +68,10 @@ const getLogTableData = () => {
 getLogTableData();
 
 const getProjectData = () => {
-  logApi.getProjectData()
+  projectApi.getProjectData()
       .then(resp => {
-        for (const item of resp.data) {
-          options.value.push({'label': item.projectName, 'value': item.projectId})
+        for (const item of resp.data.projects) {
+          options.value.push({label: item.projectName, value: item.projectId})
         }
       })
 }
@@ -81,12 +84,19 @@ const handlePageChange = (currentPage : number) => {
 }
 
 const openDialog = (row : any) => {
-  baseInfo = {...row}
+  baseInfo = reactive({...row})
   dialogVisible.value = true
 }
-
+const computedPaginationInfo = (count : number) => {
+  pageInfo.totalCount = count;
+  pageInfo.pageSize = 8;
+  pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+  pageInfo.currentPage = 1;
+  tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+}
 const searchData = (data : any) => {
-  tableData.value = tableData.value.filter(
+  originData.value = originData.value.filter(
       item => {
         const logNoOk = data.logId == '' || item.logId == data.logId
         const projectNameOK = data.projectName == '' || item.projectName == data.projectName
@@ -95,16 +105,20 @@ const searchData = (data : any) => {
         return logNoOk && projectNameOK && isDelayOk
       }
   )
+  computedPaginationInfo(originData.value.length)
 }
 
 const handleReset = () => {
+  getLogTableData();
   pageInfo.currentPage = 1;
   tableData.value = [...originData.value]
       .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
 const openWriteDialog = () => {
-  baseInfo.logSignDate = new Date(new Date().setDate(new Date().getDate() + 1)).setHours(12, 0, 0, 0);
+
+  baseInfo.logBeyondDate = recoverGTM8(new Date());
+
   writeDialogVisible.value = true;
 }
 
@@ -113,20 +127,62 @@ const cancelCommit = () => {
   writeDialogVisible.value = false
 }
 
+const confirmCommit = () => {
+
+  if (baseInfo.projectId == undefined) {
+    ElMessage({
+      message: '未选择项目',
+      type: 'error'
+    })
+    return
+  }
+
+
+  baseInfo.logSignDate = recoverGTM8(new Date());
+  baseInfo.logState = '未填报'
+  baseInfo.logBeyondDate = recoverGTM8(baseInfo.logBeyondDate)
+  baseInfo.logId = '31456'
+  baseInfo.project = {
+    projectId: baseInfo.projectId
+  }
+
+  console.log(baseInfo)
+
+  logApi.createLog(baseInfo)
+      .then(resp => {
+        if (resp.data.status === 'CREATED') {
+          ElMessage({
+            message: "发布成功",
+            type: "success"
+          })
+          getLogTableData();
+        } else {
+          ElMessage({
+            message: "发布失败",
+            type: "error"
+          })
+        }
+      })
+      .catch(resp => {
+        console.log(resp)
+      })
+  cancelCommit();
+}
+
 </script>
 
 <template>
   <DefaultLayout>
-    <LogTableLayout @clickSearch="searchData" @clickReset="handleReset"></LogTableLayout>
+    <InquireLogTableLayout @clickSearch="searchData" @clickReset="handleReset"></InquireLogTableLayout>
     <div class="h-12 mt-3">
-      <EButton @click="openWriteDialog" customClass="bg-meta-5 h-11 w-24">
+      <EButton @click="openWriteDialog" class="bg-meta-5 h-11 w-24">
         <SendIcon class="w-4 h-4"/>
         下发日志
       </EButton>
     </div>
     <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">
-      <table class="data-table w-full mt-3 rounded-lg">
-        <tr class="bg-slate-100 dark:bg-form-strokedark" >
+      <table class="w-full mt-3 rounded-lg">
+        <tr class="h-14 bg-slate-100 dark:bg-form-strokedark" >
           <th  v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
           <th>操作</th>
         </tr>
@@ -165,7 +221,7 @@ const cancelCommit = () => {
       <div class="grid grid-cols-2 gap-2 items-center justify-items-center">
         <div class="info-box"> 项目名称 </div>
         <el-select
-          v-model="baseInfo.projectName"
+          v-model="baseInfo.projectId"
           filterable
           size="large"
           placeholder="请选择"
@@ -177,23 +233,9 @@ const cancelCommit = () => {
             :value="item.value"
           />
         </el-select>
-        <div class="info-box"> 填报人 </div>
-        <el-select
-            v-model="baseInfo.logSender"
-            size="large"
-            filterable
-            placeholder="输入选择"
-        >
-          <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-          />
-        </el-select>
         <div class="info-box">逾期时间</div>
         <el-date-picker
-            v-model="baseInfo.logSignDate"
+            v-model="baseInfo.logBeyondDate"
             size="large"
             type="datetime"
             placeholder="选择逾期时间"
@@ -203,9 +245,19 @@ const cancelCommit = () => {
         <button class="w-18 transition hover:ring-1 ring-slate-400 hover:-translate-y-1 text-white bg-slate-400 rounded" @click="cancelCommit">
           取消
         </button>
-        <button class="w-18 text-white transition hover:ring-1 ring-meta-3  hover:-translate-y-1 bg-meta-3 rounded">
-          提交
-        </button>
+        <el-popconfirm
+            title="提交后不可修改，请确认"
+            confirm-button-text="确认"
+            cancel-button-text="取消"
+            width="200"
+            @confirm="confirmCommit"
+        >
+          <template #reference>
+            <button class="w-18 text-white transition hover:ring-1 ring-meta-3  hover:-translate-y-1 bg-meta-3 rounded">
+              提交
+            </button>
+          </template>
+        </el-popconfirm>
       </div>
     </el-dialog>
 

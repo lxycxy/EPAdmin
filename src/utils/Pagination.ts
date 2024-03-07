@@ -4,3 +4,4 @@ export interface PaginationInfo {
     totalPages: number
     totalCount: number
 }
+

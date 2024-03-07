@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request, {BASE_URL} from "@/utils/request";
 
 export interface ProjectData {
     projectCost: number;
@@ -19,5 +19,5 @@ export interface ProjectData {
   }
 
 export const getProjectData = () => {
-    return request.get('/mock/project.json')
+    return request.get(BASE_URL + '/crebas/project/listAll');
 }

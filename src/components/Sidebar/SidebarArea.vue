@@ -159,8 +159,12 @@ const menuGroups = ref([
                     fill=""
                   />
                 </svg>`,
-        label: 'Profile',
-        route: '/profile'
+        label: '用户管理',
+        route: '#',
+        children :[
+          { label: '用户管理', route: '/user/manage'},
+          { label: '个人信息', route: '/user/profile'}
+        ]
       },
       {
         icon: `<svg

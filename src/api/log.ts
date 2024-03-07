@@ -1,8 +1,7 @@
+import type {ProjectData} from "@/api/project";
 import request from "@/utils/request";
-
 export interface logItemData {
     logId : string
-    projectName : string
     logContent: string
     logDate: Date
     logBeyondDate: Date
@@ -10,11 +9,19 @@ export interface logItemData {
     logSender: string
     logSignDate: Date
     isDelay: string
+    projectName: string
+    project: ProjectData
+    projectId: string
 }
 export const getLogData = () => {
-    return request.get('/mock/logTable.json');
+    return request.get('/crebas/log/getAll');
 }
 
-export const getProjectData = () => {
-    return request.get('/mock/project.json');
+// 提交日志填报内容
+export const commitFillLog = (data: logItemData) => {
+    return request.post('/crebas/log/update', data);
+}
+
+export const createLog = (data: logItemData) => {
+    return request.post('/crebas/log/create', data);
 }

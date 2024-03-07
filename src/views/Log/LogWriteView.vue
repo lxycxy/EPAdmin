@@ -2,11 +2,15 @@
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
-import LogTableLayout from "@/views/Log/LogTableLayout.vue";
 import type{logItemData} from "@/api/log";
 import type{PaginationInfo} from "@/utils/Pagination";
 import * as logApi from "@/api/log";
+import useUserStore from "@/stores/user";
+import {ElMessage} from "element-plus";
+import WriteLogTableLayout from "@/views/Log/WriteLogTableLayout.vue";
+import {recoverGTM8} from "@/utils/utils";
 
+const userStore = useUserStore()
 const writeModel = ref(false)
 
 let baseInfo: logItemData = reactive({}) as logItemData;
@@ -26,6 +30,10 @@ const columnsHeader = ref([
     index: 'logContent'
   },
   {
+    title: '填报状态',
+    index: 'logState'
+  },
+  {
     title: '逾期时间',
     index: 'logBeyondDate'
   },
@@ -33,14 +41,6 @@ const columnsHeader = ref([
     title: '下发时间',
     index: 'logSignDate'
   },
-  {
-    title: '填报时间',
-    index: 'logDate'
-  },
-  {
-    title: '是否逾期',
-    index: 'isDelay'
-  }
 ])
 
 
@@ -50,14 +50,14 @@ const tableData = ref<logItemData[]> ([]);
 const getLogTableData = () => {
   logApi.getLogData()
       .then(resp => {
-        originData.value = resp.data
+        originData.value = resp.data.logs
+        for (let item of originData.value) {
+          item.projectName = item.project.projectName
+          item.projectId = item.project.projectId
+        }
 
-        pageInfo.totalCount = originData.value.length;
-        pageInfo.pageSize = 8;
-        pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
-        pageInfo.currentPage = 1;
-        tableData.value = [...originData.value]
-            .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+        computedPaginationInfo(originData.value.length)
+
       })
       .catch(resp => {
         console.log(resp)
@@ -78,32 +78,79 @@ const cancelCommit = () => {
 }
 
 const openDialog = (row : any) => {
-  baseInfo = {...row}
+  baseInfo = reactive({...row})
   dialogVisible.value = true
 }
 
 const openWriteDialog = (row : any) => {
   dialogVisible.value = true
-  baseInfo = {...row}
+  baseInfo = reactive({...row})
   writeModel.value = true
+
 }
 
-const searchData = (data : any) => {
-  tableData.value = tableData.value.filter(
-      item => {
-        const logNoOk = data.logId == '' || item.logId == data.logId
-        const projectNameOK = data.projectName == '' || item.projectName == data.projectName
-        const isDelayOk = data.isDelay == '' || item.isDelay == data.isDelay
-
-        return logNoOk && projectNameOK && isDelayOk
-      }
-  )
-}
-
-const handleReset = () => {
+const computedPaginationInfo = (count : number) => {
+  pageInfo.totalCount = count;
+  pageInfo.pageSize = 8;
+  pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
   pageInfo.currentPage = 1;
   tableData.value = [...originData.value]
       .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+}
+const searchData = (data : any) => {
+
+  originData.value = originData.value.filter(
+      item => {
+        const logNoOk = data.logId == '' || item.logId == data.logId
+        const projectNameOK = data.projectName == '' || item.projectName == data.projectName
+        const logStateOk = data.logState == '' || item.logState == data.logState
+
+        return logNoOk && projectNameOK && logStateOk
+      }
+  )
+
+  computedPaginationInfo(originData.value.length)
+}
+
+const handleReset = () => {
+  getLogTableData();
+  pageInfo.currentPage = 1;
+  tableData.value = [...originData.value]
+      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+}
+
+const confirmCommit = () => {
+
+  if (baseInfo.logContent == null || baseInfo.logContent.length == 0 ) {
+    ElMessage({
+      message: '日志内容未填写',
+      type: "warning"
+    })
+    return
+  }
+
+  baseInfo.logState = '已填报'
+  baseInfo.logSender = userStore.username
+
+
+  baseInfo.logDate = recoverGTM8(new Date())
+  logApi.commitFillLog(baseInfo)
+      .then(resp => {
+        if (resp.statusCode === 200) {
+          ElMessage({
+            message: "提交成功",
+            type: "success"
+          })
+          getLogTableData();
+        } else {
+          ElMessage({
+            message: "提交失败",
+            type: "error"
+          })
+        }
+      })
+
+  cancelCommit();
 }
 
 </script>
@@ -111,9 +158,9 @@ const handleReset = () => {
 <template>
   <DefaultLayout>
 
-    <LogTableLayout @clickSearch="searchData" @clickReset="handleReset"></LogTableLayout>
+    <WriteLogTableLayout @clickSearch="searchData" @clickReset="handleReset"></WriteLogTableLayout>
     <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">
-      <table class="data-table w-full mt-3 rounded-lg">
+      <table class=" w-full mt-3 rounded-lg">
         <tr class="h-14 bg-slate-100 dark:bg-form-strokedark">
           <th v-for="item in columnsHeader" :key="item.index">{{ item.title }}</th>
           <th>操作</th>
@@ -159,13 +206,13 @@ const handleReset = () => {
         <div >项目名称</div>
         <div >{{baseInfo.projectName}}</div>
         <div >填报人</div>
-        <div>{{baseInfo.logSender}}</div>
-        <div>填报时间</div>
-        <div>{{baseInfo.logDate}}</div>
+        <div>{{ baseInfo.logSender == null ? userStore.username: baseInfo.logSender }}</div>
+        <div>逾期时间</div>
+        <div>{{ baseInfo.logBeyondDate }}</div>
         <div>日志下发时间</div>
-        <div>{{baseInfo.logSignDate}}</div>
+        <div>{{ baseInfo.logSignDate }}</div>
         <div>是否逾期</div>
-        <div>{{baseInfo.isDelay}}</div>
+        <div>{{ baseInfo.isDelay }}</div>
       </div>
       <div class="flex h-24 items-center">
         <div class="w-1/4 h-full flex justify-center items-center" style="border: 0.5px solid #E8E8E8; background-color: #F6F6F6">日志内容</div>
@@ -181,12 +228,22 @@ const handleReset = () => {
         </div>
       </div>
       <div v-if="writeModel" class="flex justify-end space-x-6 h-10 mt-5">
-        <button class="w-18 transition hover:ring-1 ring-slate-400 hover:-translate-y-1 text-white bg-slate-400 rounded" @click="cancelCommit">
+        <button @click="cancelCommit" class="w-18 transition hover:ring-1 ring-slate-400 hover:-translate-y-1 text-white bg-slate-400 rounded" >
           取消
         </button>
-        <button class="w-18 text-white transition hover:ring-1 ring-meta-3  hover:-translate-y-1 bg-meta-3 rounded">
-          提交
-        </button>
+        <el-popconfirm
+            title="提交后不可修改，请确认"
+            confirm-button-text="确认"
+            cancel-button-text="取消"
+            width="200"
+            @confirm="confirmCommit"
+        >
+          <template #reference>
+            <button class="w-18 text-white transition hover:ring-1 ring-meta-3  hover:-translate-y-1 bg-meta-3 rounded">
+              提交
+            </button>
+          </template>
+        </el-popconfirm>
       </div>
     </el-dialog>
   </DefaultLayout>
