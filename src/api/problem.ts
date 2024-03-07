@@ -1,19 +1,30 @@
-import request from "@/utils/request";
+import request, {BASE_URL} from "@/utils/request";
+import type {ProjectData} from "@/api/project";
 export interface ProblemItemData {
     projectName: string
+    projectId: string
     problemId : string
     problemDescription: string
     problemAdviced: string
     problemHandler: string
-    problemHandleWay: string
-    problemSendCompany : string
+    problemHandleway: string
+    problemSendcompany : string
     problemSender: string
     problemState: string
     problemType : string
     problemHandleDate: string
-    problemSendDate: string
+    problemSenddate: string
+    project: ProjectData
 }
 
 export const getProblemData = () => {
-    return request.get('/mock/problem.json')
+    return request.get( '/crebas/problem/listAll')
+}
+
+export const createProblemData = (data: ProblemItemData) => {
+    return request.post( '/crebas/problem/createProblem', data)
+}
+
+export const postProblemHandleResult = (data : ProblemItemData) => {
+    return request.post('/crebas/problem/updateProblem', data)
 }

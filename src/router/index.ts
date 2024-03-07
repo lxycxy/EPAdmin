@@ -14,7 +14,7 @@ import QualityView from '@/views/Quality/QualityView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
-
+import UserManageView from "@/views/User/UserManage.vue";
 
 const routes = [
   {
@@ -90,7 +90,15 @@ const routes = [
     }
   },
   {
-    path: '/profile',
+    path: '/user/manage',
+    name: 'UserManage',
+    component: UserManageView,
+    meta: {
+      title: 'UserManage'
+    }
+  },
+  {
+    path: '/user/profile',
     name: 'profile',
     component: ProfileView,
     meta: {

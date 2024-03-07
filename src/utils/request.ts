@@ -1,9 +1,10 @@
 import axios from 'axios'
+import {ElMessage} from "element-plus";
 
 export const BASE_URL = "http://localhost:8080";
 
 const request = axios.create({
-    // baseURL: baseUrl,
+    baseURL: BASE_URL,
     timeout: 60000,
 })
 
@@ -22,6 +23,10 @@ request.interceptors.response.use(
         return response.data;
     },
     error => {
+        ElMessage({
+            message: error.message,
+            type: 'error'
+        })
         return Promise.reject(error);
     }
 );
