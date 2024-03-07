@@ -2,17 +2,17 @@
 import { reactive, ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import SearchInput from "@/components/Input/SearchInput.vue"
+import SearchInput from "@/components/Input/SearchInput1.vue"
 import Pagination from "@/components/Buttons/Pagination.vue"
 import type { PaginationInfo } from "@/utils/Pagination";
 import type { ContractData } from "@/api/contract"
 import * as contractApi from "@/api/contract"
+import { log } from 'console'
 
 const statusOptions = [
   "审核中",
   "履行中",
   "已完成",
-  
 ]
 const natureOptions = [
   "收入合同",
@@ -52,7 +52,8 @@ let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
 const getContractData = () => {
   contractApi.getContractData()
     .then(resp => {
-      originData.value = resp.data
+      console.log(resp.data.contracts);
+      originData.value = resp.data.contracts
 
       pageInfo.totalCount = originData.value.length;
       pageInfo.pageSize = 6;
@@ -470,7 +471,7 @@ const pageTitle = ref('合同台账')
       <div class="flex items-center flex-wrap mt-2">
         <button @click="addContractDialog()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="17.5" viewBox="0 0 448 512">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 448 512">
             <path fill="#ffffff"
               d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
           </svg>
@@ -576,7 +577,7 @@ const pageTitle = ref('合同台账')
                 <p class="text-xs text-black">{{ item.contractSigndate }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ item.projectName }}</p>
+                <p class="text-xs text-black">{{ item.project.projectName }}</p>
               </td>
               <td class="flex-between text-center py-2 px-2">
                 <button

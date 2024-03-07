@@ -10,14 +10,11 @@ import LogWriteView from '@/views/Log/LogWriteView.vue'
 import LogInquireView from '@/views/Log/LogInquireView.vue'
 import QuestionWriteView from '@/views/Question/QuestionWriteView.vue'
 import QuestionHandleView from '@/views/Question/QuestionHandleView.vue'
-import FormElementsView from '@/views/Forms/FormElementsView.vue'
-import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
-import SettingsView from '@/views/Pages/SettingsView.vue'
+import QualityView from '@/views/Quality/QualityView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
-import ModeTableView from "@/views/Pages/ModeTableView.vue";
+
 
 const routes = [
   {
@@ -85,43 +82,19 @@ const routes = [
     }
   },
   {
+    path: '/quality/inspect',
+    name: 'QualityInspect',
+    component: QualityView,
+    meta: {
+      title: 'QualityInspect'
+    }
+  },
+  {
     path: '/profile',
     name: 'profile',
     component: ProfileView,
     meta: {
       title: 'Profile'
-    }
-  },
-  {
-    path: '/forms/form-elements',
-    name: 'formElements',
-    component: FormElementsView,
-    meta: {
-      title: 'Form Elements'
-    }
-  },
-  {
-    path: '/forms/form-layout',
-    name: 'formLayout',
-    component: FormLayoutView,
-    meta: {
-      title: 'Form Layout'
-    }
-  },
-  {
-    path: '/tables',
-    name: 'tables',
-    component: TablesView,
-    meta: {
-      title: 'Tables'
-    }
-  },
-  {
-    path: '/pages/settings',
-    name: 'settings',
-    component: SettingsView,
-    meta: {
-      title: 'Settings'
     }
   },
   {
@@ -156,14 +129,6 @@ const routes = [
       title: 'Signup'
     }
   },
-  {
-    path: '/pages/modetable',
-    name: 'modetable',
-    component: ModeTableView,
-    meta: {
-      title: 'ModeTable'
-    }
-  }
 ]
 
 const router = createRouter({

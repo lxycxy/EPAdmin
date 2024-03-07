@@ -2,7 +2,7 @@
 import { reactive, ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import SearchInput from "@/components/Input/SearchInput.vue"
+import SearchInput from "@/components/Input/SearchInput1.vue"
 import Pagination from "@/components/Buttons/Pagination.vue"
 import type{PaginationInfo} from "@/utils/Pagination";
 import type{ProjectData} from "@/api/project"
@@ -24,7 +24,8 @@ let pageInfo : PaginationInfo = reactive({}) as PaginationInfo
 const getProjectData = () => {
   projectApi.getProjectData()
       .then(resp => {
-        originData.value = resp.data
+        console.log(resp.data.projects)
+        originData.value = resp.data.projects
 
         pageInfo.totalCount = originData.value.length;
         pageInfo.pageSize = 6;
@@ -126,8 +127,6 @@ const showDetail = (item: ProjectData) => {
   detailData = {...item}
 }
 
-const value = ref('')
-
 const pageTitle = ref('项目库')
 </script>
 
@@ -148,7 +147,7 @@ const pageTitle = ref('项目库')
               class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
               v-model="detailData.projectName"
               />
-            </div>
+          </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-xs">项目编号</span>
@@ -202,9 +201,10 @@ const pageTitle = ref('项目库')
             <span class="text-xs">项目所在地</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-select v-model="value" class="w-full text-xs" placeholder="" size="small">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
+            <input type="text"
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
+              v-model="detailData.projectPlace"
+              />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -433,7 +433,7 @@ const pageTitle = ref('项目库')
         </div>
 
         <div class="flex items-center">
-          <p class="text-xs ml-3">当前状态</p>
+          <p class="text-xs ml-3">当前阶段</p>
           <el-select v-model="searchConditions.currentStatus" class="m-2 max-w-60" placeholder="" style="width: 150px">
             <el-option v-for="item in currentPhaseOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
@@ -470,7 +470,7 @@ const pageTitle = ref('项目库')
       <div class="flex items-center flex-wrap mt-2">
         <button @click="addProjectDialog()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="17.5" viewBox="0 0 448 512">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 448 512">
             <path fill="#ffffff"
               d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
           </svg>
@@ -583,7 +583,6 @@ const pageTitle = ref('项目库')
               </td>
               <td class="flex-between text-center py-2 px-2">
                 <span class="text-xs text-primary underline cursor-pointer" @click="editProjectDialog(item)"> 编辑 </span>
-                <span class="ml-1 text-xs text-primary underline cursor-pointer"> 删除 </span>
               </td>
             </tr>
           </tbody>
