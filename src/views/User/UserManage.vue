@@ -11,6 +11,8 @@ import type {UserItemData} from "@/api/user";
 import SearchInput from "@/components/Input/SearchInput.vue";
 import useUserStore from "@/stores/user";
 import {ElMessage} from "element-plus";
+import FileExportIcon from "@/components/Icons/FileExportIcon.vue";
+import {exportXLSX} from "@/utils/utils";
 
 
 let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
@@ -139,16 +141,36 @@ const confirmCommit = () => {
   cancelCommit();
 }
 
+const exportXLSXFile = () => {
+  let fileData = [];
+
+  for (const item of originData.value) {
+    fileData.push({
+      '用户编号': item.userId,
+      '用户名称': item.username,
+      '用户账号': item.account,
+      '用户角色': map.get(item.role),
+    })
+  }
+
+
+  exportXLSX(fileData, '用户列表');
+}
+
 </script>
 
 <template>
   <DefaultLayout>
     <UserTableLayout @clickSearch="searchData" @clickReset="handleReset">
     </UserTableLayout>
-    <div class="h-10 mt-3">
+    <div class="h-10 flex space-x-4 mt-3">
       <EButton @click="openWriteDialog" class="bg-meta-5 h-full w-20">
         <UserAddIcon class="h-4 w-4"/>
         添加
+      </EButton>
+      <EButton @click="exportXLSXFile" class="bg-primary h-full w-20">
+        <FileExportIcon class="w-4 h-4"/>
+        导出
       </EButton>
     </div>
     <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">
