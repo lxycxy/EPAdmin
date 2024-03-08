@@ -8,7 +8,9 @@ import type {PaginationInfo} from "@/utils/Pagination";
 import * as problemApi from '@/api/problem'
 import useUserStore from "@/stores/user";
 import {ElMessage} from "element-plus";
-import {recoverGTM8} from "@/utils/utils";
+import {exportXLSX, recoverGTM8} from "@/utils/utils";
+import FileExportIcon from "@/components/Icons/FileExportIcon.vue";
+import EButton from "@/components/Buttons/EButton.vue";
 
 let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
 let baseInfo: ProblemItemData = reactive({}) as ProblemItemData
@@ -162,13 +164,36 @@ const clickClose = (row : ProblemItemData) => {
         }
       })
 }
+const exportXLSXFile = () => {
+  let fileData = [];
+
+  for (const item of originData.value) {
+    fileData.push({
+      '问题编号': item.problemId,
+      '项目名称': item.projectName,
+      '问题类型': item.problemType,
+      '状态': item.problemState,
+      '问题描述': item.problemDescription,
+      '填报人': item.problemSender,
+      '创建时间': item.problemSenddate,
+      '处理人': item.problemHandler
+    })
+  }
+
+
+  exportXLSX(fileData, '问题列表');
+}
 </script>
 
 <template>
   <DefaultLayout>
-    <QuestionTableLayout @clickSearch="searchData" @clickReset="handleReset">
-
-    </QuestionTableLayout>
+    <QuestionTableLayout @clickSearch="searchData" @clickReset="handleReset"></QuestionTableLayout>
+    <div class="h-10 flex space-x-4 mt-3">
+      <EButton @click="exportXLSXFile" class="bg-primary h-full w-20">
+        <FileExportIcon class="w-4 h-4"/>
+        导出
+      </EButton>
+    </div>
     <div class="w-full bg-white p-6 mt-3 rounded-lg dark:bg-black shadow-md">
       <table class="w-full mt-3 rounded-lg">
         <tr class="h-14 bg-slate-100 dark:bg-form-strokedark">

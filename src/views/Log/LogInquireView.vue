@@ -11,7 +11,8 @@ import EButton from "@/components/Buttons/EButton.vue";
 import type {Options} from "@/utils/Options";
 import {ElMessage} from "element-plus";
 import InquireLogTableLayout from "@/views/Log/InquireLogTableLayout.vue";
-import {recoverGTM8} from "@/utils/utils";
+import {exportXLSX, recoverGTM8} from "@/utils/utils";
+import FileExportIcon from "@/components/Icons/FileExportIcon.vue";
 
 
 let baseInfo: logItemData = reactive({}) as logItemData;
@@ -116,9 +117,7 @@ const handleReset = () => {
 }
 
 const openWriteDialog = () => {
-
   baseInfo.logBeyondDate = recoverGTM8(new Date());
-
   writeDialogVisible.value = true;
 }
 
@@ -163,16 +162,37 @@ const confirmCommit = () => {
       })
   cancelCommit();
 }
+const exportXLSXFile = () => {
+  let fileData = [];
+
+  for (const item of originData.value) {
+    fileData.push({
+      '日志编号': item.logId,
+      '项目名称': item.projectName,
+      '日志内容': item.logContent,
+      '填报时间': item.logDate,
+      '发放时间': item.logSignDate,
+      '是否逾期': item.isDelay,
+      '填报人': item.logSender
+    })
+  }
+
+  exportXLSX(fileData, '日志');
+}
 
 </script>
 
 <template>
   <DefaultLayout>
     <InquireLogTableLayout @clickSearch="searchData" @clickReset="handleReset"></InquireLogTableLayout>
-    <div class="h-12 mt-3">
+    <div class="h-12 mt-3 flex space-x-4">
       <EButton @click="openWriteDialog" class="bg-meta-5 h-11 w-24">
         <SendIcon class="w-4 h-4"/>
         下发日志
+      </EButton>
+      <EButton @click="exportXLSXFile" class="bg-primary h-11 w-24">
+        <FileExportIcon class="w-5 h-5"/>
+        导出数据
       </EButton>
     </div>
     <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">

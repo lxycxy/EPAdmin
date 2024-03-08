@@ -11,17 +11,18 @@ import QuestionWriteView from '@/views/Question/QuestionWriteView.vue'
 import QuestionHandleView from '@/views/Question/QuestionHandleView.vue'
 import QualityView from '@/views/Quality/QualityView.vue'
 import ProfileView from '@/views/User/ProfileView.vue'
-import AlertsView from '@/views/UiElements/AlertsView.vue'
-import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import UserManageView from "@/views/User/UserManage.vue";
-
+import useUserStore from "@/stores/user";
+import NoAuthView from "@/views/Auth/NoAuthView.vue";
 const routes = [
   {
     path: '/',
     name: 'Dashboard',
     component: DashboardView,
     meta: {
-      title: 'Dashboard'
+      title: '首页',
+      requiresAuth: true,
+      roles: ['employee', 'manager', 'boss']
     }
   },
   {
@@ -29,7 +30,9 @@ const routes = [
     name: 'Project',
     component: ProjectView,
     meta: {
-      title: 'Project'
+      title: '项目管理',
+      requiresAuth: true,
+      roles: ['manager', 'boss']
     }
   },
   {
@@ -37,7 +40,9 @@ const routes = [
     name: 'Ledger',
     component: LedgerView,
     meta: {
-      title: 'Ledger'
+      title: '合同管理',
+      requiresAuth: true,
+      roles: ['manager', 'boss']
     }
   },
   {
@@ -45,7 +50,9 @@ const routes = [
     name: 'PayProgress',
     component: PayProgressView,
     meta: {
-      title: 'PayProgress'
+      title: '支付进度',
+      requiresAuth: true,
+      roles: ['manager', 'boss']
     }
   },
   {
@@ -53,7 +60,9 @@ const routes = [
     name: 'LogWrite',
     component: LogWriteView,
     meta: {
-      title: 'LogWrite'
+      title: '日志填报',
+      requiresAuth: true,
+      roles: ['employee','employee','boss']
     }
   },
   {
@@ -61,7 +70,9 @@ const routes = [
     name: 'LogInquire',
     component: LogInquireView,
     meta: {
-      title: 'LogInquire'
+      title: '日志查询',
+      requiresAuth: true,
+      roles: ['manager', 'boss']
     }
   },
   {
@@ -69,7 +80,9 @@ const routes = [
     name: 'QuestionWrite',
     component: QuestionWriteView,
     meta: {
-      title: 'QuestionWrite'
+      title: '问题填报',
+      requiresAuth: true,
+      roles: ['employee', 'manager', 'boss']
     }
   },
   {
@@ -77,7 +90,9 @@ const routes = [
     name: 'QuestionHandle',
     component: QuestionHandleView,
     meta: {
-      title: 'QuestionHandle'
+      title: '问题处理',
+      requiresAuth: true,
+      roles: ['manager', 'boss']
     }
   },
   {
@@ -85,7 +100,9 @@ const routes = [
     name: 'QualityInspect',
     component: QualityView,
     meta: {
-      title: 'QualityInspect'
+      title: '质量检查',
+      requiresAuth: true,
+      roles: ['manager', 'boss']
     }
   },
   {
@@ -93,7 +110,9 @@ const routes = [
     name: 'UserManage',
     component: UserManageView,
     meta: {
-      title: 'UserManage'
+      title: '用户管理',
+      requiresAuth: true,
+      roles: ['boss']
     }
   },
   {
@@ -101,23 +120,9 @@ const routes = [
     name: 'profile',
     component: ProfileView,
     meta: {
-      title: 'Profile'
-    }
-  },
-  {
-    path: '/ui-elements/alerts',
-    name: 'alerts',
-    component: AlertsView,
-    meta: {
-      title: 'Alerts'
-    }
-  },
-  {
-    path: '/ui-elements/buttons',
-    name: 'buttons',
-    component: ButtonsView,
-    meta: {
-      title: 'Buttons'
+      title: '个人信息',
+      requiresAuth: true,
+      roles: ['employee','manager', 'boss']
     }
   },
   {
@@ -125,7 +130,17 @@ const routes = [
     name: 'signin',
     component: SigninView,
     meta: {
-      title: 'Signin'
+      title: '登录',
+      requireAuth: false
+    }
+  },
+  {
+    path: '/auth/500',
+    name: 'noAuth',
+    component: NoAuthView,
+    meta: {
+      title: '权限不足',
+      requireAuth: false
     }
   },
 ]
@@ -141,15 +156,16 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   document.title = `Ep Admin ${to.meta.title} | 项目工程管理系统`
   const isLogin = sessionStorage.getItem('isLogin');
+  const userStore= useUserStore()
 
-  if (isLogin) {
+  if (to.meta.requiresAuth && !isLogin) {
+    next({ name: 'signin' })
+  } else if (! to.meta.requiresAuth) {
     next()
+  } else if (isLogin && !to.meta.roles.includes(userStore.role)) {
+    next({name: "noAuth"})
   } else {
-    if (to.path === '/auth/signin') {
-      next()
-    } else {
-      next('/auth/signin')
-    }
+    next()
   }
 })
 

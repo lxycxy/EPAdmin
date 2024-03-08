@@ -12,5 +12,9 @@ export const login = (data : UserItemData) => {
 }
 
 export const getUserData = () => {
-    return request.get('/mock/account.json')
+    return request.get('/crebas/account/listAll')
+}
+
+export const register = (data : UserItemData) => {
+    return request.post('/crebas/account/signup', data)
 }
