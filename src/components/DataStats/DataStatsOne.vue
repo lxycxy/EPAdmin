@@ -1,7 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import type{DataStatsOne} from '@/api/dashboard'
+import * as dashboardApi from '@/api/dashboard'
 
-const cardItems = ref([
+const detailData = ref<DataStatsOne>()
+const getDataOne = () => {
+  dashboardApi.getDataOne()
+    .then(resp => {
+      detailData.value = resp.data.indexData1
+    })
+}
+getDataOne();
+
+const cardItems = computed (() => [
   {
     icon: `<svg
           class="fill-primary dark:fill-white"
@@ -21,7 +32,7 @@ const cardItems = ref([
           />
         </svg>`,
     title: '合同总数(个)',
-    total: '118'
+    total: detailData.value ? detailData.value.contractCount : null
   },
   {
     icon: `<svg
@@ -46,7 +57,7 @@ const cardItems = ref([
             />
           </svg>`,
     title: '项目总数(个)',
-    total: '54'
+    total: detailData.value ? detailData.value.projectCount : null
   },
   {
     icon: `<svg
@@ -67,7 +78,7 @@ const cardItems = ref([
             />
           </svg>`,
     title: '项目进度(%)',
-    total: '83'
+    total: detailData.value ? detailData.value.projectProgress : null
   },
   {
     icon: `<svg
@@ -92,7 +103,7 @@ const cardItems = ref([
             />
           </svg>`,
     title: '超期项目个数(个)',
-    total: '11'
+    total: detailData.value ? detailData.value.delayProjectCount : null
   },
   {
     icon: `<svg 
@@ -144,7 +155,7 @@ const cardItems = ref([
             </path>
           </svg>`,
     title: '今日日报逾期(项)',
-    total: '23'
+    total: detailData.value ? detailData.value.delayLogToday : null
   },
   {
     icon: `<svg 
@@ -161,7 +172,7 @@ const cardItems = ref([
             </path>
           </svg>`,
     title: '今日新增问题(个)',
-    total: '34'
+    total: detailData.value ? detailData.value.newProblemToday : null
   }
 ])
 </script>

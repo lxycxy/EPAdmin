@@ -10,7 +10,6 @@ export interface InspectRecord {
     checker: string,
     checkDate: Date,
     checkResult: string,
-
 }
 
 export const getInspectData = () => {

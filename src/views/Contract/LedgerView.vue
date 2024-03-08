@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import SearchInput from "@/components/Input/SearchInput1.vue"
 import Pagination from "@/components/Buttons/Pagination.vue"
 import type { PaginationInfo } from "@/utils/Pagination";
-import type { ContractData } from "@/api/contract"
+import type { ContractData, ContractSearch } from "@/api/contract"
 import * as contractApi from "@/api/contract"
-import { log } from 'console'
+import * as projectApi from "@/api/project"
+import type { ProjectData } from "@/api/project"
 
 const statusOptions = [
   "审核中",
@@ -18,7 +20,14 @@ const natureOptions = [
   "收入合同",
   "支出合同"
 ]
-const projectOptions = ref([])
+let projectOptions = ref<ProjectData[]>([])
+const getProjectData = () => {
+  projectApi.getProjectData()
+    .then(resp => {
+      projectOptions.value = resp.data.projects
+    })
+}
+getProjectData();
 const typeOptions = [
   "勘察设计合同",
   "设计合同",
@@ -45,14 +54,15 @@ const wayOptions = [
 
 const originData = ref<ContractData[]>([])
 const tableData = ref<ContractData[]>([])
-let detailData: ContractData = reactive({}) as ContractData
+let detailData: ContractData = reactive({
+  project: {} // 在初始化时将 project 设置为一个空对象
+}) as ContractData
 
 let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
 
 const getContractData = () => {
   contractApi.getContractData()
     .then(resp => {
-      console.log(resp.data.contracts);
       originData.value = resp.data.contracts
 
       pageInfo.totalCount = originData.value.length;
@@ -83,25 +93,126 @@ const addContractDialog = () => {
 const editContractDialog = (item: ContractData) => {
   flag.value = false;
   addDialogVisible.value = true;
-  detailData = {...item};
+  detailData = reactive({...item});
 }
 const closeAddContractDialog = () => {
   addDialogVisible.value = false;
-  detailData = reactive({}) as ContractData
+  detailData = reactive({
+    project: {} // 在初始化时将 project 设置为一个空对象
+  }) as ContractData
 }
 
 const detailDialogVisible = ref(false);
 const showDetail = (item: ContractData) => {
   detailDialogVisible.value = true;
-  detailData = {...item}
+  detailData = reactive({...item})
 }
 
-const searchConditions = ref({
-  name: '',
-  id: '',
-  status: '',
-  nature: ''
-})
+/* 添加合同 */
+const addContract = () => {
+  if(detailData.project == undefined || detailData.contractType == undefined ||
+    detailData.contractId == undefined || detailData.contractName == undefined ||
+    detailData.contractNature == undefined || detailData.contractPay == undefined || 
+    detailData.contractCost == undefined || detailData.contractStartdate == undefined ||
+    detailData.contractEnddate == undefined || detailData.contractWay == undefined ||
+    detailData.contractFirstcompany == undefined || detailData.contractSecondcompany == undefined
+  ) {
+    ElMessage({
+      type: 'warning',
+      message: '请填写必填信息',
+    })
+  }
+  else {
+    ElMessageBox.confirm(
+    '是否要添加一个新的合同?',
+    '提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'info',
+    }
+  )
+    .then(() => {
+      detailData.contractState = "审核中"
+      contractApi.addContract(detailData)
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '添加成功',
+          })
+          getContractData();
+          closeAddContractDialog();
+        })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '撤销添加',
+      })
+    })
+  }
+}
+/* 修改项目 */
+const updateContract = () => {
+  if(detailData.project == undefined || detailData.contractType == undefined ||
+    detailData.contractId == undefined || detailData.contractName == undefined ||
+    detailData.contractNature == undefined || detailData.contractPay == undefined || 
+    detailData.contractCost == undefined || detailData.contractStartdate == undefined ||
+    detailData.contractEnddate == undefined || detailData.contractWay == undefined ||
+    detailData.contractFirstcompany == undefined || detailData.contractSecondcompany == undefined
+  ) {
+    ElMessage({
+      type: 'warning',
+      message: '请填写必填信息',
+    })
+  }
+  else {
+    ElMessageBox.confirm(
+    '是否要更改一个已有合同的信息?',
+    '提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'info',
+    }
+  )
+    .then(() => {
+      contractApi.updateContract(detailData)
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '修改成功',
+          })
+          getContractData();
+          closeAddContractDialog();
+        })
+        .catch(() => {
+          ElMessage({
+          type: 'error',
+          message: '修改失败',
+      })
+        })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '撤销修改',
+      })
+    })
+  }
+}
+/* 编辑项目dialog */
+const confirmButton = () => {
+  if(flag.value) addContract()
+  else updateContract()
+}
+
+let searchConditions : ContractSearch = reactive({}) as ContractSearch
+const resetSearch = () => {
+  searchConditions = reactive({}) as ContractSearch;
+  getContractData();
+}
+
 
 const pageTitle = ref('合同台账')
 </script>
@@ -114,17 +225,20 @@ const pageTitle = ref('合同台账')
         <!-- 填报内容 -->
         <div class="grid grid-cols-12">
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">项目名称</span>
+            <span class="text-red">*</span><span class="text-xs">项目名称</span>
           </div>
-          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-select v-model="detailData.projectId" class="w-full text-xs" placeholder="" size="small">
-              <el-option v-for="item in projectOptions" :key="item.projectId" :label="item.projectName"
-                :value="item.projectId" />
+          <div v-if="flag" class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <el-select v-model="detailData.project.projectId" class="w-full text-xs" placeholder="" size="small">
+              <el-option v-for="item in projectOptions" :key="item.projectId" :label="item.projectName" :value="item.projectId" />
             </el-select>
           </div>
+          <div v-else class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.project.projectName }}</span>
+          </div>
+          
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">合同类型</span>
+            <span class="text-red">*</span><span class="text-xs">合同类型</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-select v-model="detailData.contractType" class="w-full text-xs" placeholder="" size="small">
@@ -136,25 +250,31 @@ const pageTitle = ref('合同台账')
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-red">*</span><span class="text-xs">合同编号</span>
           </div>
-          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+          <div v-if="flag" class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
               class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
               v-model="detailData.contractId"
               />
           </div>
+          <div v-else class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.contractId }}</span>
+          </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-red">*</span><span class="text-xs">合同名称</span>
           </div>
-          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+          <div v-if="flag" class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
               class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
               v-model="detailData.contractName"
               />
           </div>
+          <div v-else class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.contractName }}</span>
+          </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">合同性质</span>
+            <span class="text-red">*</span><span class="text-xs">合同性质</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-select v-model="detailData.contractNature" class="w-full text-xs" placeholder="" size="small">
@@ -164,7 +284,7 @@ const pageTitle = ref('合同台账')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">结算方式</span>
+            <span class="text-red">*</span><span class="text-xs">结算方式</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-select v-model="detailData.contractPay" class="w-full text-xs" placeholder="" size="small">
@@ -184,7 +304,7 @@ const pageTitle = ref('合同台账')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-red">*</span><span class="text-xs">预付款(%)</span>
+            <span class="text-xs">预付款(%)</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="number"
@@ -201,21 +321,21 @@ const pageTitle = ref('合同台账')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">开始日期</span>
+            <span class="text-red">*</span><span class="text-xs">开始日期</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-date-picker v-model="detailData.contractStartdate" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">结束日期</span>
+            <span class="text-red">*</span><span class="text-xs">结束日期</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-date-picker v-model="detailData.contractEnddate" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">签订方式</span>
+            <span class="text-red">*</span><span class="text-xs">签订方式</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-select v-model="detailData.contractWay" class="w-full text-xs" placeholder="" size="small">
@@ -296,6 +416,7 @@ const pageTitle = ref('合同台账')
 
           <div class="col-start-11 col-end-11">
             <button
+              @click="confirmButton()" 
               class="flex justify-around items-center bg-primary text-white rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-opacity-50">
               提交
             </button>
@@ -303,7 +424,7 @@ const pageTitle = ref('合同台账')
           <div class="col-start-12 col-end-12">
             <button
               class="flex justify-around items-center bg-white text-black border rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-gray"
-              @click="closeAddContractDialog"
+              @click="closeAddContractDialog()"
             >
               取消
             </button>
@@ -323,7 +444,7 @@ const pageTitle = ref('合同台账')
             <span class="text-xs">项目名称</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <span class="text-xs">{{ detailData.projectName }}</span>
+            <span class="text-xs">{{ detailData.project.projectName }}</span>
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -355,7 +476,7 @@ const pageTitle = ref('合同台账')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-red">*</span><span class="text-xs">结算方式</span>
+            <span class="text-xs">结算方式</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <span class="text-xs">{{ detailData.contractPay }}</span>
@@ -411,7 +532,7 @@ const pageTitle = ref('合同台账')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-red">*</span><span class="text-xs">乙方单位</span>
+            <span class="text-xs">乙方单位</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <span class="text-xs">{{ detailData.contractSecondcompany }}</span>
@@ -429,21 +550,21 @@ const pageTitle = ref('合同台账')
 
       <!-- 搜索框 -->
       <div class="rounded-2xl bg-white dark:bg-boxdark flex items-center flex-wrap">
-        <SearchInput class="text-xs max-w-100" label="合同名称" placeholder="输入合同名称" v-model="searchConditions.name">
+        <SearchInput class="text-xs max-w-100" label="合同名称" placeholder="输入合同名称" v-model="searchConditions.contractName">
         </SearchInput>
-        <SearchInput class="text-xs max-w-100" label="合同编号" placeholder="输入合同编号" v-model="searchConditions.id">
+        <SearchInput class="text-xs max-w-100" label="合同编号" placeholder="输入合同编号" v-model="searchConditions.contractId">
         </SearchInput>
 
         <div class="flex items-center">
           <p class="text-xs ml-3">合同状态</p>
-          <el-select v-model="searchConditions.status" class="m-2 max-w-100" placeholder="" style="width: 150px">
+          <el-select v-model="searchConditions.contractState" class="m-2 max-w-100" placeholder="" style="width: 150px">
             <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
           </el-select>
         </div>
 
         <div class="flex items-center">
           <p class="text-xs ml-3">合同性质</p>
-          <el-select v-model="searchConditions.nature" class="m-2 max-w-100" placeholder="" style="width: 150px">
+          <el-select v-model="searchConditions.contractNature" class="m-2 max-w-100" placeholder="" style="width: 150px">
             <el-option v-for="item in natureOptions" :key="item" :label="item" :value="item" />
           </el-select>
         </div>
@@ -458,6 +579,7 @@ const pageTitle = ref('合同台账')
         </button>
 
         <button
+          @click="resetSearch()"
           class="flex justify-around justify-end items-center bg-meta-3 text-white rounded-lg w-15 p-1.5 text-xs m-2 hover:ring-1 hover:ring-meta-3 hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="20" width="20">
             <path fill="#ffffff"

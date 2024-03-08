@@ -4,9 +4,9 @@ import type { ProjectData } from "./project";
 export interface ContractData {
     contractCost: number,
     contractPrepaid: number,
-    contractEnddate: string,
-    contractSigndate: string,
-    contractStartdate: string,
+    contractEnddate: Date,
+    contractSigndate: Date,
+    contractStartdate: Date,
     contractFirstcompany: string,
     contractId: string,
     contractName: string,
@@ -18,12 +18,19 @@ export interface ContractData {
     contractWay: string,
     firstcompanyManager: string,
     firstcompanyManagerPhone: string,
-    project: ProjectData,
     secondcompanyManager: string,
-    secondcompanyManagerPhone: string
+    secondcompanyManagerPhone: string,
+    project: ProjectData,
 }
 
-export interface SearchConditions {
+export interface ContractSearch {
+    contractName: string,
+    contractId: string,
+    contractState: string,
+    contractNature: string,
+}
+
+export interface PayRecordSearch {
     name: string,
     type: string,
     minCost: number,
@@ -51,4 +58,12 @@ export const getContractData = () => {
 
 export const getPayRecordData = () => {
     return request.get('/mock/payRecord.json')
+}
+
+export const addContract = (data : ContractData) => {
+    return request.post('/crebas/contract/createContract', data)
+}
+
+export const updateContract = (data : ContractData) => {
+    return request.post('/crebas/contract/updateContract', data)
 }

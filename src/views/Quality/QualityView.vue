@@ -29,9 +29,8 @@ const handlePageChange = (currentPage: number) => {
 const getInspectData = () => {
   qualityApi.getInspectData()
     .then(resp => {
+      originData.value = resp.data.qualities
       
-      originData.value = resp.data.qualitys
-
       pageInfo.totalCount = originData.value.length;
       pageInfo.pageSize = 6;
       pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);

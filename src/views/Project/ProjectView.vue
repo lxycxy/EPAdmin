@@ -17,10 +17,80 @@ let detailData : ProjectData = reactive({}) as ProjectData
 
 let pageInfo : PaginationInfo = reactive({}) as PaginationInfo
 
+const currentPhaseOptions = [
+  {
+    value: '方案设计',
+    label: '方案设计',
+  },
+  {
+    value: '基层处理',
+    label: '基层处理',
+  },
+  {
+    value: '面层处理',
+    label: '面层处理',
+  },
+  {
+    value: '深层处理',
+    label: '深层处理',
+  },
+  {
+    value: '项目验收',
+    label: '项目验收',
+  },
+  {
+    value: '项目收尾',
+    label: '项目收尾',
+  },
+]
+const stateOptions = [
+  {
+    value: '未开始',
+    label: '未开始',
+  },
+  {
+    value: '进行中',
+    label: '进行中',
+  },
+  {
+    value: '已延期',
+    label: '已延期',
+  },
+  {
+    value: '已竣工',
+    label: '已竣工',
+  }
+]
+const placeOp = ref([])
+const getPlaceOp = () => {
+  projectApi.getProjectPlace()
+    .then(resp => {
+      placeOp.value = resp.data.projects   
+    })
+}
+getPlaceOp();
+
+const searchData = () => {
+  projectApi.searchProjectData(searchConditions)
+    .then(resp => {
+      originData.value = resp.data.updatedProject
+
+      pageInfo.totalCount = originData.value.length;
+      pageInfo.pageSize = 6;
+      pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+      pageInfo.currentPage = 1;
+      tableData.value = [...originData.value]
+        .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+    })
+}
+const resetSearch = () => {
+  searchConditions = reactive({}) as SearchConditions;
+  getProjectData();
+}
+
 const getProjectData = () => {
   projectApi.getProjectData()
       .then(resp => {
-        console.log(resp.data.projects)
         originData.value = resp.data.projects
 
         pageInfo.totalCount = originData.value.length;
@@ -42,76 +112,6 @@ const handlePageChange = (currentPage : number) => {
       .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
-const currentPhaseOptions = [
-  {
-    value: '方案设计阶段',
-    label: '方案设计阶段',
-  },
-  {
-    value: '基层处理阶段',
-    label: '基层处理阶段',
-  },
-  {
-    value: '面层处理阶段',
-    label: '面层处理阶段',
-  },
-  {
-    value: '深层处理阶段',
-    label: '深层处理阶段',
-  },
-  {
-    value: '项目验收阶段',
-    label: '项目验收阶段',
-  },
-  {
-    value: '项目收尾阶段',
-    label: '项目收尾阶段',
-  },
-]
-const stateOptions = [
-  {
-    value: '未开始',
-    label: '未开始',
-  },
-  {
-    value: '进行中',
-    label: '进行中',
-  },
-  {
-    value: '已延期',
-    label: '已延期',
-  },
-  {
-    value: '已竣工',
-    label: '已竣工',
-  }
-]
-const options = [
-  {
-    value: 'Option1',
-    label: 'Option1',
-  },
-  {
-    value: 'Option2',
-    label: 'Option2',
-  },
-  {
-    value: 'Option3',
-    label: 'Option3',
-  },
-  {
-    value: 'Option4',
-    label: 'Option4',
-  },
-]
-const searchData = () => {
-
-}
-const resetSearch = () => {
-  searchConditions = reactive({}) as SearchConditions;
-  getProjectData();
-}
-
 const addDialogVisible = ref(false)
 let flag = ref() /* 判断addDialog窗口标题 */
 const addProjectDialog = () => {
@@ -121,7 +121,8 @@ const addProjectDialog = () => {
 const editProjectDialog = (item: ProjectData) => {
   flag.value = false;
   addDialogVisible.value = true;
-  detailData = {...item};
+  detailData = reactive({...item});
+
 }
 const closeAddProjectDialog = () => {
   addDialogVisible.value = false;
@@ -131,7 +132,7 @@ const closeAddProjectDialog = () => {
 const detailDialogVisible = ref(false);
 const showDetail = (item: ProjectData) => {
   detailDialogVisible.value = true;
-  detailData = {...item}
+  detailData = reactive({...item})
 }
 
 /* 添加项目 */
@@ -140,13 +141,13 @@ const addProject = () => {
     detailData.projectCurrentPhase == undefined || detailData.projectState == undefined ||
     detailData.projectCost == undefined || detailData.projectProgress == undefined || 
     detailData.projectPlace == undefined || detailData.projectManager == undefined ||
-    detailData.projectDescription == undefined
+    detailData.projectDescription == undefined || detailData.projectPlanStarttime == undefined ||
+    detailData.projectPlanFinishtime == undefined
   ) {
     ElMessage({
       type: 'warning',
       message: '请填写必填信息',
     })
-    console.log(123);
   }
   else {
     ElMessageBox.confirm(
@@ -159,10 +160,16 @@ const addProject = () => {
     }
   )
     .then(() => {
-      ElMessage({
-        type: 'success',
-        message: '添加成功',
-      })
+      projectApi.addProject(detailData)
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '添加成功',
+          })
+          getProjectData();
+          getPlaceOp();
+          closeAddProjectDialog();
+        })
     })
     .catch(() => {
       ElMessage({
@@ -178,7 +185,8 @@ const editProject = () => {
     detailData.projectCurrentPhase == undefined || detailData.projectState == undefined ||
     detailData.projectCost == undefined || detailData.projectProgress == undefined || 
     detailData.projectPlace == undefined || detailData.projectManager == undefined ||
-    detailData.projectDescription == undefined
+    detailData.projectDescription == undefined || detailData.projectPlanStarttime == undefined ||
+    detailData.projectPlanFinishtime == undefined
   ) {
     ElMessage({
       type: 'warning',
@@ -196,10 +204,22 @@ const editProject = () => {
     }
   )
     .then(() => {
-      ElMessage({
-        type: 'success',
-        message: '修改成功',
+      projectApi.updateProject(detailData)
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '修改成功',
+          })
+          getProjectData();
+          getPlaceOp();
+          closeAddProjectDialog();
+        })
+        .catch(() => {
+          ElMessage({
+          type: 'error',
+          message: '修改失败',
       })
+        })
     })
     .catch(() => {
       ElMessage({
@@ -211,7 +231,7 @@ const editProject = () => {
 }
 /* 编辑项目dialog */
 const confirmButton = () => {
-  if(flag) addProject()
+  if(flag.value) addProject()
   else editProject()
 }
 
@@ -240,12 +260,16 @@ const pageTitle = ref('项目库')
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-red">*</span><span class="text-xs">项目编号</span>
           </div>
-          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+          <div v-if="flag" class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
               class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
               v-model="detailData.projectId"
               />
           </div>
+          <div v-else class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <span class="text-xs">{{ detailData.projectId }}</span>
+          </div>
+          
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-red">*</span><span class="text-xs">当前阶段</span>
@@ -296,14 +320,14 @@ const pageTitle = ref('项目库')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">计划开工时间</span>
+            <span class="text-red">*</span><span class="text-xs">计划开工时间</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-date-picker v-model="detailData.projectPlanStarttime" type="date" placeholder="" size="small" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">计划完工时间</span>
+            <span class="text-red">*</span><span class="text-xs">计划完工时间</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-date-picker v-model="detailData.projectPlanFinishtime" type="date" placeholder="" size="small" />
@@ -531,12 +555,12 @@ const pageTitle = ref('项目库')
         <div class="flex items-center">
           <p class="text-xs ml-3">所在区域</p>
           <el-select v-model="searchConditions.projectPlace" class="m-2 max-w-60" placeholder="" style="width: 150px">
-            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option v-for="item in placeOp" :key="item" :label="item" :value="item" />
           </el-select>
         </div>
 
         <button
-
+          @click="searchData()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-15 p-1.5 text-xs ml-auto m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 512 512">
             <path fill="#ffffff"
@@ -654,11 +678,11 @@ const pageTitle = ref('项目库')
                 <p class="text-xs text-black">{{ item.projectCurrentPhase }}</p>
               </td>
               <td class="flex justify-center items-center text-center py-2 px-2">
-                <div v-if="item.warming === 0" class="rounded-full bg-green-500 w-8 h-8" style="transform: scale(0.8);">
+                <div v-if="item.warning === 0" class="rounded-full bg-green-500 w-8 h-8" style="transform: scale(0.8);">
                 </div>
-                <div v-if="item.warming === 1" class="rounded-full bg-yellow-300 w-8 h-8"
+                <div v-if="item.warning === 1" class="rounded-full bg-yellow-300 w-8 h-8"
                   style="transform: scale(0.8);"></div>
-                <div v-if="item.warming === 2" class="rounded-full bg-red w-8 h-8" style="transform: scale(0.8);"></div>
+                <div v-if="item.warning === 2" class="rounded-full bg-red w-8 h-8" style="transform: scale(0.8);"></div>
               </td>
               <td class="text-center py-2 px-2">
                 <el-progress :text-inside="true" :stroke-width="18" :percentage="item.projectProgress" />

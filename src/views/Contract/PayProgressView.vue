@@ -3,12 +3,12 @@ import { reactive, ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import SearchInput from '@/components/Input/SearchInput1.vue';
-import type { ContractData, SearchConditions, PayRecord } from '@/api/contract';
+import type { ContractData, PayRecordSearch, PayRecord } from '@/api/contract';
 import * as payRecordApi from "@/api/contract"
 import Pagination from "@/components/Buttons/Pagination.vue"
 import type { PaginationInfo } from "@/utils/Pagination";
 
-let conditions: SearchConditions = reactive({}) as SearchConditions
+let conditions: PayRecordSearch = reactive({}) as PayRecordSearch
 const companyOp1 = ref([])
 const companyOp2 = ref([])
 const statusOp = [
@@ -61,6 +61,10 @@ const addPayContractDialog = () => {
 const closeAddPayRecordDialog = () => {
   addDialogVisible.value = false;
   detailData = reactive({}) as PayRecord
+}
+
+const searchData = () => {
+  console.log(conditions);
 }
 
 const pageTitle = ref('合同支付进度')
@@ -208,6 +212,7 @@ const pageTitle = ref('合同支付进度')
 
         <div class="col-start-3 flex justify-end">
           <button
+            @click="searchData()"
             class="flex justify-around items-center bg-primary text-white rounded-lg w-15 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
             <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 512 512">
               <path fill="#ffffff"
