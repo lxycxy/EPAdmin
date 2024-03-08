@@ -37,9 +37,9 @@ const handleReset = () => {
           v-model="searchForm.data.role"
           placeholder="请选择"
       >
-        <el-option label="员工" value='员工' />
-        <el-option label="经理" value='经理' />
-        <el-option label="老板" value='老板' />
+        <el-option label="员工" value='employee' />
+        <el-option label="经理" value='manager' />
+        <el-option label="老板" value='boss' />
       </el-select>
     </div>
 
