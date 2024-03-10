@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import SearchInput from "@/components/Input/SearchInput1.vue"
@@ -11,6 +12,8 @@ import * as qualityApi from '@/api/quality'
 let conditions: SearchConditions = reactive({}) as SearchConditions
 
 const resultOp = [
+  "优秀",
+  "良好",
   "合格",
   "不合格"
 ]
@@ -32,7 +35,7 @@ const getInspectData = () => {
       originData.value = resp.data.qualities
       
       pageInfo.totalCount = originData.value.length;
-      pageInfo.pageSize = 6;
+      pageInfo.pageSize = 9;
       pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
       pageInfo.currentPage = 1;
       tableData.value = [...originData.value]
@@ -51,6 +54,66 @@ const addInspectDialog = () => {
 const closeAddInspectDialog = () => {
   addDialogVisible.value = false;
   detailData = reactive({}) as InspectRecord
+}
+  /* 添加质检记录 */
+const addInspectRecord = () => {
+  if (detailData.checkId == undefined || detailData.checker == undefined ||
+    detailData.checkResult == undefined || detailData.checkDate == undefined ||
+    detailData.checkId == '' || detailData.checker == ''
+  ) {
+    ElMessage({
+      type: 'warning',
+      message: '请填写必填信息',
+    })
+  }
+  else {
+    ElMessageBox.confirm(
+      '是否要添加一个新的质检记录?',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info',
+      }
+    )
+      .then(() => {
+        qualityApi.checkCheckId(detailData.checkId)
+          .then(resp => {
+            console.log(resp.data);
+            if (resp.data.qualities.checkId != null) {
+              ElMessage({
+                type: 'error',
+                message: '质检编号已存在，请重新填写质检编号',
+              })
+            }
+            else {
+              qualityApi.addInspectRecord(detailData)
+                .then(() => {
+                  ElMessage({
+                    type: 'success',
+                    message: '添加成功',
+                  })
+                  getInspectData()
+                  closeAddInspectDialog();
+                })
+            }
+          })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '撤销添加',
+        })
+      })
+  }
+}
+
+const searchData = () => {
+  console.log(conditions);
+}
+const resetSearch = () => {
+  conditions = reactive({}) as SearchConditions;
+  getInspectData();
 }
 
 const pageTitle = ref('质量检测')
@@ -86,7 +149,7 @@ const pageTitle = ref('质量检测')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">质检结果</span>
+            <span class="text-red">*</span><span class="text-xs">质检结果</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-select v-model="detailData.checkResult" class="w-full text-xs" placeholder="" size="small">
@@ -95,7 +158,7 @@ const pageTitle = ref('质量检测')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-xs">付款日期</span>
+            <span class="text-red">*</span><span class="text-xs">质检日期</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-date-picker v-model="detailData.checkDate" type="date" placeholder="" size="small" />
@@ -103,6 +166,7 @@ const pageTitle = ref('质量检测')
 
           <div class="col-start-11 col-end-11">
             <button
+              @click="addInspectRecord()"
               class="flex justify-around items-center bg-primary text-white rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-opacity-50">
               确定
             </button>
@@ -137,6 +201,7 @@ const pageTitle = ref('质量检测')
         </div>
 
         <button
+          @click="searchData()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-15 p-1.5 text-xs ml-auto m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 512 512">
             <path fill="#ffffff"
@@ -146,6 +211,7 @@ const pageTitle = ref('质量检测')
         </button>
 
         <button
+          @click="resetSearch()"
           class="flex justify-around justify-end items-center bg-meta-3 text-white rounded-lg w-15 p-1.5 text-xs m-2 hover:ring-1 hover:ring-meta-3 hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="20" width="20">
             <path fill="#ffffff"
@@ -194,7 +260,7 @@ const pageTitle = ref('质量检测')
           <tbody>
             <tr class="bg-white dark:bg-slate-300 items-center" v-for="(item, index) in tableData" :key="index">
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-black">{{ (pageInfo.currentPage - 1) * 6 + index + 1 }}</p>
+                <p class="text-xs text-black">{{ (pageInfo.currentPage - 1) * 9 + index + 1 }}</p>
               </td>
               <td class="text-center py-2 px-2">
                 <p class="text-xs text-black">{{ item.checkId }}</p>

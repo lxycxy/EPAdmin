@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
 import * as logApi from '@/api/log';
@@ -180,10 +181,16 @@ const exportXLSXFile = () => {
   exportXLSX(fileData, '日志');
 }
 
+const pageTitle = ref('日志查询')
 </script>
 
 <template>
   <DefaultLayout>
+
+    <!-- Breadcrumb Start -->
+    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <!-- Breadcrumb End -->
+
     <InquireLogTableLayout @clickSearch="searchData" @clickReset="handleReset"></InquireLogTableLayout>
     <div class="h-12 mt-3 flex space-x-4">
       <EButton @click="openWriteDialog" class="bg-meta-5 h-11 w-24">

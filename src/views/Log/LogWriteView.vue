@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
 import type{logItemData} from "@/api/log";
@@ -153,10 +154,15 @@ const confirmCommit = () => {
   cancelCommit();
 }
 
+const pageTitle = ref('日志填报')
 </script>
 
 <template>
   <DefaultLayout>
+
+    <!-- Breadcrumb Start -->
+    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <!-- Breadcrumb End -->
 
     <WriteLogTableLayout @clickSearch="searchData" @clickReset="handleReset"></WriteLogTableLayout>
     <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">

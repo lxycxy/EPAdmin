@@ -8,6 +8,7 @@ import Pagination from "@/components/Buttons/Pagination.vue"
 import type{PaginationInfo} from "@/utils/Pagination";
 import type{SearchConditions, ProjectData} from "@/api/project"
 import * as projectApi from "@/api/project"
+import {exportXLSX} from "@/utils/utils";
 
 let searchConditions : SearchConditions = reactive({}) as SearchConditions
 
@@ -68,7 +69,6 @@ const getPlaceOp = () => {
       placeOp.value = resp.data.projects   
     })
 }
-getPlaceOp();
 
 const searchData = () => {
   projectApi.searchProjectData(searchConditions)
@@ -89,6 +89,7 @@ const resetSearch = () => {
 }
 
 const getProjectData = () => {
+  getPlaceOp();
   projectApi.getProjectData()
       .then(resp => {
         originData.value = resp.data.projects
@@ -142,7 +143,11 @@ const addProject = () => {
     detailData.projectCost == undefined || detailData.projectProgress == undefined || 
     detailData.projectPlace == undefined || detailData.projectManager == undefined ||
     detailData.projectDescription == undefined || detailData.projectPlanStarttime == undefined ||
-    detailData.projectPlanFinishtime == undefined
+    detailData.projectPlanFinishtime == undefined ||
+    detailData.projectId == '' || detailData.projectName == '' ||
+    detailData.projectCost == '' || detailData.projectProgress == '' || 
+    detailData.projectPlace == '' || detailData.projectManager == '' ||
+    detailData.projectDescription == '' 
   ) {
     ElMessage({
       type: 'warning',
@@ -160,15 +165,25 @@ const addProject = () => {
     }
   )
     .then(() => {
-      projectApi.addProject(detailData)
-        .then(() => {
-          ElMessage({
-            type: 'success',
-            message: '添加成功',
-          })
-          getProjectData();
-          getPlaceOp();
-          closeAddProjectDialog();
+      projectApi.checkProjectId(detailData.projectId)
+        .then(resp => {
+          if(resp.data.projects.projectId != null){
+            ElMessage({
+              type: 'error',
+              message: '项目编号已存在，请重新填写项目编号',
+            })
+          }
+          else{
+            projectApi.addProject(detailData)
+              .then(() => {
+                ElMessage({
+                  type: 'success',
+                  message: '添加成功',
+                })
+                getProjectData();
+                closeAddProjectDialog();
+              })
+          }
         })
     })
     .catch(() => {
@@ -181,12 +196,10 @@ const addProject = () => {
 }
 /* 修改项目 */
 const editProject = () => {
-  if(detailData.projectId == undefined || detailData.projectName == undefined ||
-    detailData.projectCurrentPhase == undefined || detailData.projectState == undefined ||
-    detailData.projectCost == undefined || detailData.projectProgress == undefined || 
-    detailData.projectPlace == undefined || detailData.projectManager == undefined ||
-    detailData.projectDescription == undefined || detailData.projectPlanStarttime == undefined ||
-    detailData.projectPlanFinishtime == undefined
+  if(detailData.projectName == "" ||
+    detailData.projectCost === "" || detailData.projectProgress == "" || 
+    detailData.projectPlace == "" || detailData.projectManager == "" ||
+    detailData.projectDescription == ""
   ) {
     ElMessage({
       type: 'warning',
@@ -233,6 +246,29 @@ const editProject = () => {
 const confirmButton = () => {
   if(flag.value) addProject()
   else editProject()
+}
+
+const exportXLSXFile = () => {
+  let fileData = [];
+  for (const item of originData.value) {
+    fileData.push({
+      '项目编号': item.projectId,
+      '项目名称': item.projectName,
+      '项目所在地': item.projectPlace,
+      '项目金额': item.projectCost,
+      '状态': item.projectState,
+      '当前阶段': item.projectCurrentPhase,
+      '项目进度': item.projectProgress,
+      '计划开工时间': item.projectPlanStarttime,
+      '实际开工时间': item.projectRealStarttime,
+      '计划完工时间': item.projectPlanFinishtime,
+      '实际完工时间': item.projectRealFinishtime,
+      '项目负责人': item.projectManager,
+      '负责人联系电话': item.managerPhone,
+      '项目概况': item.projectDescription
+    })
+  }
+  exportXLSX(fileData, '项目');
 }
 
 const pageTitle = ref('项目库')
@@ -605,6 +641,7 @@ const pageTitle = ref('项目库')
         </button>
 
         <button
+         @click="exportXLSXFile()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
             <path d="M11 16h2V7h3l-4-5-4 5h3z">

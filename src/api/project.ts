@@ -33,6 +33,10 @@ export const getProjectPlace = () => {
   return request.get('/crebas/project/listAllPlace')
 }
 
+export const checkProjectId = (data : string) => {
+  return request.get('crebas/project/search/' + data)
+}
+
 export const addProject = (data: ProjectData) => {
   return request.post('/crebas/project/create', data)
 }

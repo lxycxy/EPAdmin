@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import {reactive, ref} from "vue";
 import Pagination from "@/components/Buttons/Pagination.vue";
 import QuestionTableLayout from "@/views/Question/QuestionTableLayout.vue";
@@ -160,10 +161,16 @@ const handleReset = () => {
       .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
+const pageTitle = ref('问题填报')
 </script>
 
 <template>
   <DefaultLayout>
+
+    <!-- Breadcrumb Start -->
+    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <!-- Breadcrumb End -->
+
     <QuestionTableLayout @clickSearch="searchData" @clickReset="handleReset">
     </QuestionTableLayout>
     <div class="h-10 mt-3">

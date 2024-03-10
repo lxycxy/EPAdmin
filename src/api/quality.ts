@@ -15,3 +15,9 @@ export interface InspectRecord {
 export const getInspectData = () => {
     return request.get('/crebas/quality/listAll')
 }
+export const checkCheckId = (data : string) => {
+    return request.get('/crebas/quality/searchQuality/' + data);
+}
+export const addInspectRecord = (data : InspectRecord) => {
+    return request.post('/crebas/quality/createQuality', data)
+}
