@@ -137,7 +137,7 @@ const confirmCommit = () => {
   baseInfo.problemHandler = useUserStore().username
   baseInfo.problemHandleDate = recoverGTM8(new Date())
   baseInfo.problemState = '处理中'
-  problemApi.postProblemHandleResult(baseInfo)
+  problemApi.postProblemHandleResult(baseInfo) // 提交问题处理
       .then((resp) => {
         if (resp.status == 'OK') {
           ElMessage({

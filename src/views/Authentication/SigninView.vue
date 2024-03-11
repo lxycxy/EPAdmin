@@ -83,10 +83,5 @@ const login = () => {
             登录
           </button>
         </div>
-        <div class="mt-6 text-center">
-          <p class="font-medium">
-            <router-link to="/auth/signup" class="text-primary">没有账号? 点击注册</router-link>
-          </p>
-        </div>
     </DefaultAuthCard>
 </template>

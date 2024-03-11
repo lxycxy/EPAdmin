@@ -21,11 +21,15 @@ let baseInfo: UserItemData = reactive({}) as UserItemData
 const dialogVisible = ref(false);
 const columnsHeader = ref([
   {
+    title: '用户账号',
+    index: 'account'
+  },
+  {
     title: '用户名称',
     index:'username'
   },
   {
-    title: '用户账号',
+    title: '用户ID',
     index: 'userId'
   },
   {
@@ -54,7 +58,8 @@ const tableData = ref<UserItemData[]>([]);
 if (userStore.role == 'boss') {
   options.value.push({label: '经理', value: 'manager'})
 }
-const getProblemData = () => {
+// 调用获取用户列表API
+const getUserData = () => {
   userApi.getUserData()
       .then((resp) => {
         originData.value = resp.data.users
@@ -65,7 +70,7 @@ const getProblemData = () => {
       })
 }
 
-getProblemData();
+getUserData();
 
 const computedPaginationInfo = (count : number) => {
   pageInfo.totalCount = count;
@@ -101,12 +106,10 @@ const searchData = (data : any) => {
         return roleOK && usernameOK && userIdOk
       }
   )
-
-
 }
 
 const handleReset = () => {
-  getProblemData();
+  getUserData();
   pageInfo.currentPage = 1;
   tableData.value = [...originData.value]
       .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
@@ -114,7 +117,7 @@ const handleReset = () => {
 
 const confirmCommit = () => {
   const data = {
-    userName: baseInfo.account,
+    userName: baseInfo.username,
     account: baseInfo.account,
     password: baseInfo.account,
     role: baseInfo.role
@@ -126,7 +129,7 @@ const confirmCommit = () => {
             message: '添加用户成功,密码为用户账号',
             type: "success"
           })
-          getProblemData();
+          getUserData();
         } else {
           ElMessage({
             message: resp.message,
@@ -173,6 +176,7 @@ const exportXLSXFile = () => {
         导出
       </EButton>
     </div>
+<!--    表格-->
     <div class="w-full bg-white p-5 mt-3 rounded-lg dark:bg-black shadow-md">
       <table class="w-full mt-3 rounded-lg">
         <tr class="h-14 bg-slate-100 dark:bg-form-strokedark">
@@ -182,6 +186,7 @@ const exportXLSXFile = () => {
             class="bg-white dark:bg-boxdark dark:text-white dark:hover:text-black hover:bg-slate-100 border-slate-200 transition h-10 text-center"
             v-for="(row, index) in tableData" :key="index"
         >
+<!--          根据columnsHeader和tableData动态渲染-->
           <td v-for="idx in columnsHeader" :key="idx.index" class="max-w-30 truncate">
             {{ idx.index === 'role' ? map.get(row[idx.index as keyof typeof row]): row[idx.index as keyof typeof row] }}
           </td>
@@ -192,6 +197,7 @@ const exportXLSXFile = () => {
       暂无数据
     </div>
 
+<!--    分页组件-->
     <Pagination
         @pageChange="handlePageChange"
         :pageCount="pageInfo.totalPages"
@@ -206,8 +212,10 @@ const exportXLSXFile = () => {
         style="border-radius: 0.5rem; width: 30rem"
     >
       <div class="grid grid-cols-2 gap-2">
-        <div class="info-box">用户名称</div>
+        <div class="info-box">用户账号</div>
         <SearchInput class="w-full h-full" v-model="baseInfo.account"></SearchInput>
+        <div class="info-box">用户名称</div>
+        <SearchInput class="w-full h-full" v-model="baseInfo.username"></SearchInput>
         <div class="info-box">用户角色</div>
         <el-select
             v-model="baseInfo.role"

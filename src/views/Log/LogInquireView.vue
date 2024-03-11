@@ -52,15 +52,14 @@ const tableData = ref<logItemData[]> ([]);
 const options = ref<Options[]>([]);
 
 const getLogTableData = () => {
-    logApi.getLogData()
+    logApi.getLogData() // 调用获取用户数据API
         .then(resp => {
           originData.value = resp.data.logs
           for (let item of originData.value) {
             item.projectName = item.project.projectName
             item.projectId = item.project.projectId
           }
-
-          computedPaginationInfo(originData.value.length)
+          computedPaginationInfo(originData.value.length) // 计算分页信息
         })
         .catch(resp => {
           console.log(resp)
@@ -127,7 +126,7 @@ const cancelCommit = () => {
 }
 
 const confirmCommit = () => {
-
+  // 检查是否为空输入
   if (baseInfo.projectId == undefined) {
     ElMessage({
       message: '未选择项目',
@@ -136,12 +135,13 @@ const confirmCommit = () => {
     return
   }
 
-
+  // recoverGTM8 恢复为东八区时间
   baseInfo.logSignDate = recoverGTM8(new Date());
   baseInfo.logState = '未填报'
   baseInfo.logBeyondDate = recoverGTM8(baseInfo.logBeyondDate)
   baseInfo.project = {projectId: baseInfo.projectId}
 
+  // 调用下发日志API
   logApi.createLog(baseInfo)
       .then(resp => {
         if (resp.data.status === 'CREATED') {
@@ -160,7 +160,7 @@ const confirmCommit = () => {
       .catch(resp => {
         console.log(resp)
       })
-  cancelCommit();
+  cancelCommit(); // 关闭窗口，并清除数据
 }
 const exportXLSXFile = () => {
   let fileData = [];
