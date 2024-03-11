@@ -14,6 +14,12 @@ import ProfileView from '@/views/User/ProfileView.vue'
 import UserManageView from "@/views/User/UserManage.vue";
 import useUserStore from "@/stores/user";
 import NoAuthView from "@/views/Auth/NoAuthView.vue";
+
+/**
+ * title: 页面标题
+ * requiresAuth: 是否需要登录
+ * roles: 可以进入页面的角色
+*/
 const routes = [
   {
     path: '/',
@@ -153,18 +159,21 @@ const router = createRouter({
   }
 })
 
+/**
+ * 路由守卫，在进入下一个页面之前进行调用
+ */
 router.beforeEach((to, from, next) => {
   document.title = `Ep Admin ${to.meta.title} | 项目工程管理系统`
   const isLogin = sessionStorage.getItem('isLogin');
   const userStore= useUserStore()
 
-  if (to.meta.requiresAuth && !isLogin) {
+  if (to.meta.requiresAuth && !isLogin) { // 进入需要登录的页面且用户没有登录
     next({ name: 'signin' })
-  } else if (! to.meta.requiresAuth) {
+  } else if (! to.meta.requiresAuth) { // 不需要登录的界面
     next()
-  } else if (isLogin && !to.meta.roles.includes(userStore.role)) {
+  } else if (isLogin && !to.meta.roles.includes(userStore.role)) { // 登录了，但是不能进入这个页面
     next({name: "noAuth"})
-  } else {
+  } else { // 可以登录
     next()
   }
 })

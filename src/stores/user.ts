@@ -4,18 +4,18 @@ import router from "@/router";
 export const useUserStore = defineStore('user', {
     state: () => {
         return {
-            userId: '',
-            username: '',
-            role: ''
+            userId: '', // 用户ID
+            username: '', // 用户名称
+            role: '' // 用户角色
         }
     },
     actions: {
-        logout () {
+        logout () { // 清空用户数据
             this.userId = ''
             this.username = ''
             this.role = ''
             sessionStorage.removeItem('isLogin');
-            router.push({name: 'signin'})
+            router.push({name: 'signin'}) // 跳转至登录页
         }
     },
     persist: true
