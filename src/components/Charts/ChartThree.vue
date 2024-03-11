@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 // @ts-ignore
 import VueApexCharts from 'vue3-apexcharts'
+import * as chartApi from '@/api/dashboard'
 
-const chartData = {
-  series: [60], // 占比百分比，这里是示例数据
-  labels: ['超期项目'] // 如果需要，可以设置您的标签
+const chartDataNum = ref([])
+const getChartData = () => {
+  chartApi.getChartThree()
+    .then(resp => {
+      chartDataNum.value = resp.data.postponedRatio
+    })
 }
+getChartData();
+
+const chartData = computed(() => ( {
+  series: chartDataNum.value, // 占比百分比，这里是示例数据
+  labels: ['超期项目'] // 如果需要，可以设置您的标签
+}))
 
 const chart = ref(null)
 
@@ -16,7 +26,7 @@ const apexOptions = {
     width: 380
   },
   colors: ['#3C50E0'],
-  labels: chartData.labels,
+  labels: chartData.value.labels,
   plotOptions: {
     radialBar: {
       hollow: {

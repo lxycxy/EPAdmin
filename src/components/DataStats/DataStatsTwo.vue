@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { ProblemItemData } from '@/api/problem';
+import * as dashboardApi from '@/api/dashboard'
 
+const toDoItems = ref<ProblemItemData[]>([])
+const getToDoItems = () => {
+    dashboardApi.getToDoItems("待处理")
+        .then(resp => {
+            toDoItems.value = resp.data.problems
+        })
+}
+getToDoItems();
 
-const toDoItems = ref([
-  { type: '涉电力问题', content: '高压杆线需迁改，需指挥部协调', name: '翔安大嶝机场大嶝中路', source: '济南地勘建设总公司', time: '2016-10-28  10:30:30'},
-  { type: '涉电力问题', content: '高压杆线需迁改，需指挥部协调', name: '翔安大嶝机场大嶝中路', source: '济南地勘建设总公司', time: '2016-10-28  10:30:30'},
-  { type: '涉电力问题', content: '高压杆线需迁改，需指挥部协调', name: '翔安大嶝机场大嶝中路', source: '济南地勘建设总公司', time: '2016-10-28  10:30:30'},
-  { type: '涉电力问题', content: '高压杆线需迁改，需指挥部协调', name: '翔安大嶝机场大嶝中路', source: '济南地勘建设总公司', time: '2016-10-28  10:30:30'},
-])
 </script>
 
 <template>
@@ -31,9 +35,6 @@ const toDoItems = ref([
                             项目名称
                         </th>
                         <th class="text-xs min-w-[100px] py-2 px-2 font-medium text-black dark:text-white">
-                            来源
-                        </th>
-                        <th class="text-xs min-w-[100px] py-2 px-2 font-medium text-black dark:text-white">
                             时间
                         </th>
                     </tr>
@@ -42,28 +43,28 @@ const toDoItems = ref([
                 <tbody>
                     <tr v-for="(item,index) in toDoItems" :key="index">
                         <td class="text-center py-2 px-2">
-                            <p class="text-xs text-black dark:text-white">{{ item.type }}</p>
+                            <p class="text-xs text-black dark:text-white">{{ item.problemType }}</p>
                         </td>
                         <td class="text-center py-2 px-2">
-                            <p class="text-xs text-black dark:text-white">{{ item.content }}</p>
+                            <p class="text-xs text-black dark:text-white">{{ item.problemDescription }}</p>
                         </td>
                         <td class="text-center py-2 px-2">
-                            <p class="text-xs text-black dark:text-white">{{ item.name }}</p>
+                            <p class="text-xs text-black dark:text-white">{{ item.project.projectName }}</p>
                         </td>
                         <td class="text-center py-2 px-2">
-                            <p class="text-xs text-black dark:text-white">{{ item.source }}</p>
-                        </td>
-                        <td class="text-center py-2 px-2">
-                            <p class="text-xs text-black dark:text-white">{{ item.time }}</p>
+                            <p class="text-xs text-black dark:text-white">{{ item.problemSenddate }}</p>
                         </td>
                     </tr>
                 </tbody>
             </table>
+
+            <div v-if="toDoItems.length === 0"
+            class="h-32 border-t flex items-center justify-center border-slate-300 text-2xl font-bold bg-slate-200 w-full">
+                暂无待办事项
+            </div>
         </div>
+        
         
 
     </div>
-  <!-- To-Do Item Start -->
-  
-  <!-- Card Item End -->
 </template>

@@ -2,9 +2,9 @@
 import DataStatsOne from '@/components/DataStats/DataStatsOne.vue'
 import DataStatsTwo from '@/components/DataStats/DataStatsTwo.vue'
 import DataStatsThree from '@/components/DataStats/DataStatsThree.vue'
-import ChartOne from '@/components/Charts/Chart-one.vue'
-import ChartTwo from '@/components/Charts/Chart-two.vue'
-import ChartThree from '@/components/Charts/Chart-three.vue'
+import ChartOne from '@/components/Charts/ChartOne.vue'
+import ChartTwo from '@/components/Charts/ChartTwo.vue'
+import ChartThree from '@/components/Charts/ChartThree.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 </script>
 

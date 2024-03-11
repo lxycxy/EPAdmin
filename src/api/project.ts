@@ -1,11 +1,11 @@
-import request, { BASE_URL } from "@/utils/request";
+import request from "@/utils/request";
 
 export interface ProjectData {
   projectCost: number;
-  projectPlanFinishtime: string;
-  projectPlanStarttime: string;
-  projectRealFinishtime: string;
-  projectRealStarttime: string;
+  projectPlanFinishtime: Date;
+  projectPlanStarttime: Date;
+  projectRealFinishtime: Date;
+  projectRealStarttime: Date;
   managerPhone: string;
   projectCurrentPhase: string;
   projectDescription: string;
@@ -15,7 +15,7 @@ export interface ProjectData {
   projectPlace: string;
   projectProgress: number;
   projectState: string;
-  warming: number;
+  warning: number;
 }
 
 export interface SearchConditions {
@@ -26,9 +26,25 @@ export interface SearchConditions {
 }
 
 export const getProjectData = () => {
-  return request.get(BASE_URL + '/crebas/project/listAll')
+  return request.get('/crebas/project/listAll')
 }
 
 export const getProjectPlace = () => {
-  
+  return request.get('/crebas/project/listAllPlace')
+}
+
+export const checkProjectId = (data : string) => {
+  return request.get('crebas/project/search/' + data)
+}
+
+export const addProject = (data: ProjectData) => {
+  return request.post('/crebas/project/create', data)
+}
+
+export const updateProject = (data: ProjectData) => {
+  return request.post('/crebas/project/update', data)
+}
+
+export const searchProjectData = (data : SearchConditions) => {
+  return request.post('/crebas/project/filterProject', data)
 }

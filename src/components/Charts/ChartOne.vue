@@ -1,17 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 // @ts-ignore
 import VueApexCharts from 'vue3-apexcharts'
+import * as chartApi from '@/api/dashboard'
 
-const chartData = {
+const chartDataNum = ref([])
+const getChartData = () => {
+  chartApi.getChartOne()
+    .then(resp => {
+      chartDataNum.value = resp.data.buildingProcess
+    })
+}
+getChartData();
+
+const chartData = computed(() => ({
   series: [
     {
       name: '数量',
-      data: [13, 45, 12, 89]
+      data: chartDataNum.value
     },
   ],
-  labels: ['未开始', '进行中', '已延期', '已竣工', ]
-}
+  labels: ['未开始', '进行中', '已延期', '已竣工']
+}));
 
 const chart = ref(null)
 
@@ -54,7 +64,7 @@ const apexOptions = {
   },
   xaxis: {
     type: 'category',
-    categories: chartData.labels
+    categories: chartData.value.labels
   },
   legend: {
     position: 'top',
