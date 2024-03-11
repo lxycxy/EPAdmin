@@ -13,7 +13,7 @@ import useUserStore from "@/stores/user";
 import {ElMessage} from "element-plus";
 import FileExportIcon from "@/components/Icons/FileExportIcon.vue";
 import {exportXLSX} from "@/utils/utils";
-
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 
 let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
 let baseInfo: UserItemData = reactive({}) as UserItemData
@@ -157,10 +157,16 @@ const exportXLSXFile = () => {
   exportXLSX(fileData, '用户列表');
 }
 
+const pageTitle = ref('用户管理')
 </script>
 
 <template>
   <DefaultLayout>
+
+    <!-- Breadcrumb Start -->
+    <BreadcrumbDefault :pageTitle="pageTitle" />
+      <!-- Breadcrumb End -->
+
     <UserTableLayout @clickSearch="searchData" @clickReset="handleReset">
     </UserTableLayout>
     <div class="h-10 flex space-x-4 mt-3">

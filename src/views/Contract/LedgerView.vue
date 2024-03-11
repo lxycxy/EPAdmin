@@ -224,7 +224,17 @@ const confirmButton = () => {
 let searchConditions: ContractSearch = reactive({}) as ContractSearch
 const searchData = () => {
   console.log(searchConditions);
+  contractApi.searchContractData(searchConditions)
+    .then(resp => {
+      originData.value = resp.data.filterContract
 
+      pageInfo.totalCount = originData.value.length;
+      pageInfo.pageSize = 6;
+      pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+      pageInfo.currentPage = 1;
+      tableData.value = [...originData.value]
+        .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+    })
 }
 const resetSearch = () => {
   searchConditions = reactive({}) as ContractSearch;

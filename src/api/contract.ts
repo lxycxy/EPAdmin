@@ -64,7 +64,7 @@ export const updateContract = (data : ContractData) => {
     return request.post('/crebas/contract/updateContract', data)
 }
 export const searchContractData = (data : ContractSearch) => {
-    return {};
+    return request.post('/crebas/contract/filterContract' ,data);
 }
 
 export const getPayRecordData = () => {
@@ -80,7 +80,7 @@ export const searchPayRecordData = (data : PayRecordSearch) => {
     return request.post('/crebas/PayProgress/filterProgress', data)
 }
 export const checkPayRecordId = (data : string) => {
-    return request.get('/crebas/PayProgress/searchPayProgressById/' + data)
+    return request.get('/crebas/PayProgress/search/' + data)
 }
 export const addPayRecord = (data : PayRecord) => {
     return request.post('/crebas/PayProgress/createPayProgress', data)
