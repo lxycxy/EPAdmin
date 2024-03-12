@@ -142,6 +142,7 @@ const confirmCommit = () => {
   baseInfo.logBeyondDate = recoverGTM8(baseInfo.logBeyondDate)
   baseInfo.project = {projectId: baseInfo.projectId}
 
+  console.log(baseInfo)
   // 调用下发日志API
   logApi.createLog(baseInfo)
       .then(resp => {

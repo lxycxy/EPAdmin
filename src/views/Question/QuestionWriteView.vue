@@ -147,7 +147,7 @@ const confirmCommit = () => {
             message: '填报成功',
             type: "success"
           })
-          getProjectData();
+          getProblemData();
         }
       })
 

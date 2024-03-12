@@ -108,7 +108,7 @@ const routes = [
     meta: {
       title: '质量检查',
       requiresAuth: true,
-      roles: ['manager', 'boss']
+      roles: ['employee', 'manager', 'boss']
     }
   },
   {
@@ -118,7 +118,7 @@ const routes = [
     meta: {
       title: '用户管理',
       requiresAuth: true,
-      roles: ['boss']
+      roles: ['manager', 'boss']
     }
   },
   {

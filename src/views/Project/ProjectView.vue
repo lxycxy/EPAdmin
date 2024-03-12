@@ -5,18 +5,19 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import SearchInput from "@/components/Input/SearchInput1.vue"
 import Pagination from "@/components/Buttons/Pagination.vue"
-import type{PaginationInfo} from "@/utils/Pagination";
-import type{SearchConditions, ProjectData} from "@/api/project"
+import type { PaginationInfo } from "@/utils/Pagination";
+import type { SearchConditions, ProjectData } from "@/api/project"
 import * as projectApi from "@/api/project"
-import {exportXLSX} from "@/utils/utils";
+import { exportXLSX } from "@/utils/utils";
+import * as XLSX from 'xlsx/xlsx.mjs';
 
-let searchConditions : SearchConditions = reactive({}) as SearchConditions
+let searchConditions: SearchConditions = reactive({}) as SearchConditions
 
 const originData = ref<ProjectData[]>([])
 const tableData = ref<ProjectData[]>([])
-let detailData : ProjectData = reactive({}) as ProjectData
+let detailData: ProjectData = reactive({}) as ProjectData
 
-let pageInfo : PaginationInfo = reactive({}) as PaginationInfo
+let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
 
 const currentPhaseOptions = [
   {
@@ -66,11 +67,12 @@ const placeOp = ref([])
 const getPlaceOp = () => {
   projectApi.getProjectPlace()
     .then(resp => {
-      placeOp.value = resp.data.projects   
+      placeOp.value = resp.data.projects
     })
 }
 
 const searchData = () => {
+
   projectApi.searchProjectData(searchConditions)
     .then(resp => {
       originData.value = resp.data.updatedProject
@@ -91,26 +93,26 @@ const resetSearch = () => {
 const getProjectData = () => {
   getPlaceOp();
   projectApi.getProjectData()
-      .then(resp => {
-        originData.value = resp.data.projects
+    .then(resp => {
+      originData.value = resp.data.projects
 
-        pageInfo.totalCount = originData.value.length;
-        pageInfo.pageSize = 6;
-        pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
-        pageInfo.currentPage = 1;
-        tableData.value = [...originData.value]
-            .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
-      })
-      .catch(resp => {
-        console.log(resp)
-      })
+      pageInfo.totalCount = originData.value.length;
+      pageInfo.pageSize = 6;
+      pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+      pageInfo.currentPage = 1;
+      tableData.value = [...originData.value]
+        .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+    })
+    .catch(resp => {
+      console.log(resp)
+    })
 }
 getProjectData();
 
-const handlePageChange = (currentPage : number) => {
+const handlePageChange = (currentPage: number) => {
   pageInfo.currentPage = currentPage;
   tableData.value = [...originData.value]
-      .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+    .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
 }
 
 const addDialogVisible = ref(false)
@@ -122,32 +124,34 @@ const addProjectDialog = () => {
 const editProjectDialog = (item: ProjectData) => {
   flag.value = false;
   addDialogVisible.value = true;
-  detailData = reactive({...item});
+  detailData = reactive({ ...item });
 
 }
 const closeAddProjectDialog = () => {
   addDialogVisible.value = false;
   detailData = reactive({}) as ProjectData
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement
+  fileInput.value = '';
 }
 
 const detailDialogVisible = ref(false);
 const showDetail = (item: ProjectData) => {
   detailDialogVisible.value = true;
-  detailData = reactive({...item})
+  detailData = reactive({ ...item })
 }
 
 /* 添加项目 */
 const addProject = () => {
-  if(detailData.projectId == undefined || detailData.projectName == undefined ||
+  if (detailData.projectId == undefined || detailData.projectName == undefined ||
     detailData.projectCurrentPhase == undefined || detailData.projectState == undefined ||
-    detailData.projectCost == undefined || detailData.projectProgress == undefined || 
+    detailData.projectCost == undefined || detailData.projectProgress == undefined ||
     detailData.projectPlace == undefined || detailData.projectManager == undefined ||
     detailData.projectDescription == undefined || detailData.projectPlanStarttime == undefined ||
     detailData.projectPlanFinishtime == undefined ||
     detailData.projectId == '' || detailData.projectName == '' ||
-    detailData.projectCost == '' || detailData.projectProgress == '' || 
+    detailData.projectCost == '' || detailData.projectProgress == '' ||
     detailData.projectPlace == '' || detailData.projectManager == '' ||
-    detailData.projectDescription == '' 
+    detailData.projectDescription == ''
   ) {
     ElMessage({
       type: 'warning',
@@ -156,48 +160,68 @@ const addProject = () => {
   }
   else {
     ElMessageBox.confirm(
-    '是否要添加一个新的项目?',
-    '提示',
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'info',
-    }
-  )
-    .then(() => {
-      projectApi.checkProjectId(detailData.projectId)
-        .then(resp => {
-          if(resp.data.projects.projectId != null){
-            ElMessage({
-              type: 'error',
-              message: '项目编号已存在，请重新填写项目编号',
-            })
-          }
-          else{
-            projectApi.addProject(detailData)
-              .then(() => {
-                ElMessage({
-                  type: 'success',
-                  message: '添加成功',
-                })
-                getProjectData();
-                closeAddProjectDialog();
-              })
-          }
-        })
-    })
-    .catch(() => {
-      ElMessage({
+      '是否要添加一个新的项目?',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'info',
-        message: '撤销添加',
+      }
+    )
+      .then(() => {
+        projectApi.checkProjectId(detailData.projectId)
+          .then(resp => {
+            if (resp.data.projects.projectId != null) {
+              ElMessage({
+                type: 'error',
+                message: '项目编号已存在，请重新填写项目编号',
+              })
+            }
+            else {
+              projectApi.addProject(detailData)
+                .then(() => {
+                  const fileInput = document.getElementById('fileInput') as HTMLInputElement
+                  if (fileInput.files && fileInput.files.length > 0) {
+                    let formData = new FormData()
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                      formData.append('files', fileInput.files[i]);
+                    }
+                    formData.append('projectId', detailData.projectId); // 附加项目ID到formData中
+
+                    projectApi.uploadFiles(formData)
+                      .then(() => {
+                        ElMessage({
+                          type: 'success',
+                          message: '添加成功',
+                        })
+                        getProjectData();
+                        closeAddProjectDialog();
+                      })
+                  }
+                  else {
+                    ElMessage({
+                      type: 'success',
+                      message: '添加成功',
+                    })
+                    getProjectData();
+                    closeAddProjectDialog();
+                  }
+                })
+            }
+          })
       })
-    })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '撤销添加',
+        })
+      })
   }
 }
 /* 修改项目 */
 const editProject = () => {
-  if(detailData.projectName == "" ||
-    detailData.projectCost === "" || detailData.projectProgress == "" || 
+  if (detailData.projectName == "" ||
+    detailData.projectCost === "" || detailData.projectProgress == "" ||
     detailData.projectPlace == "" || detailData.projectManager == "" ||
     detailData.projectDescription == ""
   ) {
@@ -208,43 +232,62 @@ const editProject = () => {
   }
   else {
     ElMessageBox.confirm(
-    '是否要修改一个已有项目?',
-    '提示',
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'info',
-    }
-  )
-    .then(() => {
-      projectApi.updateProject(detailData)
-        .then(() => {
-          ElMessage({
-            type: 'success',
-            message: '修改成功',
-          })
-          getProjectData();
-          getPlaceOp();
-          closeAddProjectDialog();
-        })
-        .catch(() => {
-          ElMessage({
-          type: 'error',
-          message: '修改失败',
-      })
-        })
-    })
-    .catch(() => {
-      ElMessage({
+      '是否要修改一个已有项目?',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'info',
-        message: '撤销修改',
+      }
+    )
+      .then(() => {
+        projectApi.updateProject(detailData)
+          .then(() => {
+            const fileInput = document.getElementById('fileInput') as HTMLInputElement
+            if (fileInput.files && fileInput.files.length > 0) {
+              let formData = new FormData()
+              for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('files', fileInput.files[i]);
+              }
+              formData.append('projectId', detailData.projectId); // 附加项目ID到formData中
+
+              projectApi.uploadFiles(formData)
+                .then(() => {
+                  ElMessage({
+                    type: 'success',
+                    message: '修改成功',
+                  })
+                  getProjectData();
+                  closeAddProjectDialog();
+                })
+            }
+            else {
+              ElMessage({
+                type: 'success',
+                message: '修改成功',
+              })
+              getProjectData();
+              closeAddProjectDialog();
+            }
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'error',
+              message: '修改失败',
+            })
+          })
       })
-    })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '撤销修改',
+        })
+      })
   }
 }
 /* 编辑项目dialog */
 const confirmButton = () => {
-  if(flag.value) addProject()
+  if (flag.value) addProject()
   else editProject()
 }
 
@@ -271,13 +314,83 @@ const exportXLSXFile = () => {
   exportXLSX(fileData, '项目');
 }
 
+// 导入excel方法
+const handleFileChange = (event: any) => {
+  // 获取选择的文件
+  let input = event.raw;
+  // 判断文件是否存在
+  if (!input) return;
+  // 判断文件是否为 Excel 类型
+  const allowedTypes = ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+  if (!allowedTypes.includes(input.type)) {
+    alert("请选择 Excel 文件");
+    return;
+  }
+  // 创建一个 FileReader 对象，用于读取文件内容
+  const reader = new FileReader();
+  // 定义一个回调函数，当文件读取完成后执行
+  reader.onload = e => {
+    if (e.target != null) {
+      // 获取文件的二进制数据
+      const data = e.target.result;
+      // 使用 XLSX 库解析文件数据，得到一个工作簿对象
+      const workbook = XLSX.read(data, { type: "binary" });
+      // 获取工作簿中的第一个工作表
+      console.log(workbook);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      // 将工作表转换为 JSON 数组
+      const json = XLSX.utils.sheet_to_json(worksheet);
+      console.log(json);
+
+      // 将 JSON 数组赋值给 tableData，用于显示在表格中
+      projectApi.importFiles(json)
+        .then(resp => {
+          ElMessage({
+            type: 'success',
+            message: resp,
+          })
+          getProjectData();
+        })
+    }
+  };
+  // 以二进制格式读取文件
+  reader.readAsBinaryString(input);
+};
+
+const download = () => {
+  fetch(`http://localhost:8080/crebas/appendix/downloadZIP/${detailData.projectId}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('网络错误');
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      // 创建一个链接元素
+      const link = document.createElement('a');
+      // 创建一个DOMString表示blob对象所包含数据的URL
+      const url = window.URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `${detailData.projectId}-appendix_files.zip`;
+      // 触发下载
+      link.click();
+      // 清理
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+      console.error('错误:', error);
+    });
+}
+
+
 const pageTitle = ref('项目库')
 </script>
 
 <template>
   <DefaultLayout>
     <!-- 填写项目对话框 -->
-    <el-dialog v-model="addDialogVisible" :title="flag ? '新建项目' : '修改项目'" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
+    <el-dialog v-model="addDialogVisible" :title="flag ? '新建项目' : '修改项目'" width="800" align-center class="p-10"
+      @close="closeAddProjectDialog()">
       <div class="rounded-lg px-6">
         <p>基本信息</p>
 
@@ -288,9 +401,8 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
-              v-model="detailData.projectName"
-              />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.projectName" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -298,21 +410,21 @@ const pageTitle = ref('项目库')
           </div>
           <div v-if="flag" class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
-              v-model="detailData.projectId"
-              />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.projectId" />
           </div>
           <div v-else class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <span class="text-xs">{{ detailData.projectId }}</span>
           </div>
-          
+
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-red">*</span><span class="text-xs">当前阶段</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <el-select v-model="detailData.projectCurrentPhase" class="w-full text-xs" placeholder="" size="small">
-              <el-option v-for="item in currentPhaseOptions" :key="item.value" :label="item.label" :value="item.value" />
+              <el-option v-for="item in currentPhaseOptions" :key="item.value" :label="item.label"
+                :value="item.value" />
             </el-select>
           </div>
 
@@ -330,9 +442,8 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="number"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
-              v-model="detailData.projectCost"
-              />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.projectCost" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -340,9 +451,8 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="number"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
-              v-model="detailData.projectProgress"
-              />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.projectProgress" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -350,9 +460,8 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
-              v-model="detailData.projectPlace"
-              />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.projectPlace" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -395,9 +504,8 @@ const pageTitle = ref('项目库')
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter" 
-              v-model="detailData.projectManager"
-              />
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.projectManager" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -406,20 +514,19 @@ const pageTitle = ref('项目库')
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
             <input type="text"
               class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-              v-model="detailData.managerPhone"
-              />
+              v-model="detailData.managerPhone" />
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-20 flex justify-end items-center px-2 border border-slate-300">
             <span class="text-red">*</span><span class="text-xs">项目概述</span>
           </div>
           <div class="col-span-10 flex items-center h-20 px-2 border border-slate-300">
-            <el-input v-model="detailData.projectDescription" resize="none" type="textarea" placeholder="" maxlength="200" show-word-limit />
+            <el-input v-model="detailData.projectDescription" resize="none" type="textarea" placeholder=""
+              maxlength="200" show-word-limit />
           </div>
 
           <div class="col-start-11 col-end-11">
-            <button
-              @click="confirmButton()"
+            <button @click="confirmButton()"
               class="flex justify-around items-center bg-primary text-white rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-opacity-50">
               确定
             </button>
@@ -427,8 +534,7 @@ const pageTitle = ref('项目库')
           <div class="col-start-12 col-end-12">
             <button
               class="flex justify-around items-center bg-white text-black border rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-gray"
-              @click="closeAddProjectDialog()"
-            >
+              @click="closeAddProjectDialog()">
               取消
             </button>
           </div>
@@ -439,7 +545,7 @@ const pageTitle = ref('项目库')
     </el-dialog>
 
     <!-- 项目信息查看对话框 -->
-    <el-dialog v-model="detailDialogVisible" title="项目详情" width="800" align-center class="p-10" @close="closeAddProjectDialog()">
+    <el-dialog v-model="detailDialogVisible" title="项目详情" width="800" align-center class="p-10">
       <div class="rounded-lg px-6 mb-5">
         <p>基本信息</p>
 
@@ -526,7 +632,7 @@ const pageTitle = ref('项目库')
             <span class="text-xs">附件</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <button
+            <button @click="download()"
               class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:bg-opacity-50">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
                 <path d="M11 16h2V7h3l-4-5-4 5h3z">
@@ -563,8 +669,6 @@ const pageTitle = ref('项目库')
       </div>
     </el-dialog>
 
-
-
     <div class="mx-auto max-w-400">
       <!-- Breadcrumb Start -->
       <BreadcrumbDefault :pageTitle="pageTitle" />
@@ -572,7 +676,8 @@ const pageTitle = ref('项目库')
 
       <!-- 搜索框 -->
       <div class="rounded-2xl bg-white dark:bg-boxdark flex items-center flex-wrap">
-        <SearchInput class="text-xs max-w-100" label="项目名称" placeholder="输入项目名称" v-model="searchConditions.projectName"></SearchInput>
+        <SearchInput class="text-xs max-w-100" label="项目名称" placeholder="输入项目名称" v-model="searchConditions.projectName">
+        </SearchInput>
 
         <div class="flex items-center">
           <p class="text-xs ml-3">项目状态</p>
@@ -583,7 +688,8 @@ const pageTitle = ref('项目库')
 
         <div class="flex items-center">
           <p class="text-xs ml-3">当前阶段</p>
-          <el-select v-model="searchConditions.projectCurrentPhase" class="m-2 max-w-60" placeholder="" style="width: 150px">
+          <el-select v-model="searchConditions.projectCurrentPhase" class="m-2 max-w-60" placeholder=""
+            style="width: 150px">
             <el-option v-for="item in currentPhaseOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
@@ -595,8 +701,7 @@ const pageTitle = ref('项目库')
           </el-select>
         </div>
 
-        <button
-          @click="searchData()"
+        <button @click="searchData()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-15 p-1.5 text-xs ml-auto m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 512 512">
             <path fill="#ffffff"
@@ -605,8 +710,7 @@ const pageTitle = ref('项目库')
           查询
         </button>
 
-        <button
-          @click="resetSearch()"
+        <button @click="resetSearch()"
           class="flex justify-around justify-end items-center bg-meta-3 text-white rounded-lg w-15 p-1.5 text-xs m-2 hover:ring-1 hover:ring-meta-3 hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="20" width="20">
             <path fill="#ffffff"
@@ -628,20 +732,22 @@ const pageTitle = ref('项目库')
           新增
         </button>
 
-        <button
-          class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
-            <path d="m12 18 4-5h-3V2h-2v11H8z">
-            </path>
-            <path
-              d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z">
-            </path>
-          </svg>
-          导入
-        </button>
+        <el-upload class="upload" :on-change="handleFileChange" :show-file-list="false" :auto-upload="false">
+          <button
+            class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
+              <path d="m12 18 4-5h-3V2h-2v11H8z">
+              </path>
+              <path
+                d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z">
+              </path>
+            </svg>
+            导入
+          </button>
+        </el-upload>
 
-        <button
-         @click="exportXLSXFile()"
+
+        <button @click="exportXLSXFile()"
           class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
             <path d="M11 16h2V7h3l-4-5-4 5h3z">
@@ -652,6 +758,7 @@ const pageTitle = ref('项目库')
           </svg>
           导出
         </button>
+
       </div>
 
       <div class="max-h-400 overflow-y-auto">
@@ -703,7 +810,8 @@ const pageTitle = ref('项目库')
                 <p class="text-xs text-black">{{ (pageInfo.currentPage - 1) * 6 + index + 1 }}</p>
               </td>
               <td class="text-center py-2 px-2">
-                <p class="text-xs text-primary hover:underline cursor-pointer" @click="showDetail(item)">{{item.projectName }}</p>
+                <p class="text-xs text-primary hover:underline cursor-pointer" @click="showDetail(item)">
+                  {{ item.projectName }}</p>
               </td>
               <td class="text-center py-2 px-2">
                 <p class="text-xs text-black">{{ item.projectCost }}</p>
@@ -748,12 +856,8 @@ const pageTitle = ref('项目库')
       </div>
 
       <!-- 分页 -->
-      <Pagination
-        @pageChange="handlePageChange"
-        :pageCount="pageInfo.totalPages"
-        :total="pageInfo.totalCount"
-        :currentPage="pageInfo.currentPage"
-     ></Pagination>
+      <Pagination @pageChange="handlePageChange" :pageCount="pageInfo.totalPages" :total="pageInfo.totalCount"
+        :currentPage="pageInfo.currentPage"></Pagination>
     </div>
   </DefaultLayout>
 

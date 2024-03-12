@@ -48,3 +48,14 @@ export const updateProject = (data: ProjectData) => {
 export const searchProjectData = (data : SearchConditions) => {
   return request.post('/crebas/project/filterProject', data)
 }
+
+export const uploadFiles = (data : FormData) => {
+  return request.post('/crebas/appendix/upload', data)
+}
+
+export const downloadFiles = (data : string) => {
+  return request.get('/crebas/appendix/downloadZIP/' + data)
+}
+export const importFiles = (data : any) => {
+  return request.post('/crebas/project/importExcel', data);
+}
