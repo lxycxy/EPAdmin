@@ -117,7 +117,10 @@ const handleReset = () => {
 }
 
 const openWriteDialog = () => {
-  baseInfo.logBeyondDate = recoverGTM8(new Date());
+  let tomorrow = new Date();
+  tomorrow.setDate(new Date().getDate() + 1);
+  tomorrow.setHours(12, 0, 0, 0);
+  baseInfo.logBeyondDate = tomorrow
   writeDialogVisible.value = true;
 }
 
@@ -139,13 +142,12 @@ const confirmCommit = () => {
   // recoverGTM8 恢复为东八区时间
   baseInfo.logSignDate = recoverGTM8(new Date());
   baseInfo.logState = '未填报'
-  baseInfo.logBeyondDate = recoverGTM8(baseInfo.logBeyondDate)
   baseInfo.project = {projectId: baseInfo.projectId}
-
+  baseInfo.logBeyondDate = recoverGTM8(baseInfo.logBeyondDate);
   // 调用下发日志API
   logApi.createLog(baseInfo)
       .then(resp => {
-        if (resp.data.status === 'CREATED') {
+        if (resp.status === 'CREATED') {
           ElMessage({
             message: "发布成功",
             type: "success"
