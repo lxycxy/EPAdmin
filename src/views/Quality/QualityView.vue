@@ -8,9 +8,20 @@ import Pagination from "@/components/Buttons/Pagination.vue"
 import type { PaginationInfo } from "@/utils/Pagination";
 import type { SearchConditions, InspectRecord } from '@/api/quality';
 import * as qualityApi from '@/api/quality'
+import * as projectApi from "@/api/project"
+import type{ProjectData} from "@/api/project"
+import {exportXLSX} from "@/utils/utils";
 
 let conditions: SearchConditions = reactive({}) as SearchConditions
 
+const projectOp = ref<ProjectData[]>([])
+const getProjectData = () => {
+  projectApi.getProjectData()
+    .then(resp => {
+      projectOp.value = resp.data.projects
+    })
+}
+getProjectData();
 const resultOp = [
   "优秀",
   "良好",
@@ -20,7 +31,9 @@ const resultOp = [
 
 const originData = ref<InspectRecord[]>([])
 const tableData = ref<InspectRecord[]>([])
-let detailData: InspectRecord = reactive({}) as InspectRecord
+let detailData: InspectRecord = reactive({
+  project: {}
+}) as InspectRecord
 
 let pageInfo: PaginationInfo = reactive({}) as PaginationInfo
 const handlePageChange = (currentPage: number) => {
@@ -31,7 +44,7 @@ const handlePageChange = (currentPage: number) => {
 
 const getInspectData = () => {
   qualityApi.getInspectData()
-    .then(resp => {
+    .then(resp => {   
       originData.value = resp.data.qualities
       
       pageInfo.totalCount = originData.value.length;
@@ -53,7 +66,9 @@ const addInspectDialog = () => {
 }
 const closeAddInspectDialog = () => {
   addDialogVisible.value = false;
-  detailData = reactive({}) as InspectRecord
+  detailData = reactive({
+    project: {}
+  }) as InspectRecord
 }
   /* 添加质检记录 */
 const addInspectRecord = () => {
@@ -109,11 +124,36 @@ const addInspectRecord = () => {
 }
 
 const searchData = () => {
-  console.log(conditions);
+  qualityApi.searchInspectRecordData(conditions)
+    .then(resp => {
+      originData.value = resp.data.filterQualityCheck
+
+      pageInfo.totalCount = originData.value.length;
+      pageInfo.pageSize = 6;
+      pageInfo.totalPages = Math.ceil(pageInfo.totalCount / pageInfo.pageSize);
+      pageInfo.currentPage = 1;
+      tableData.value = [...originData.value]
+        .slice((pageInfo.currentPage - 1) * pageInfo.pageSize, pageInfo.currentPage * pageInfo.pageSize)
+    })
 }
 const resetSearch = () => {
   conditions = reactive({}) as SearchConditions;
   getInspectData();
+}
+
+const exportXLSXFile = () => {
+  let fileData = [];
+  for (const item of originData.value) {
+    fileData.push({
+      '质检编号': item.checkId,
+      '项目编号': item.project.projectId,
+      '项目名称': item.project.projectName,
+      '质检人': item.checker,
+      '质检日期': item.checkDate,
+      '质检结果': item.checkResult
+    })
+  }
+  exportXLSX(fileData, '质检记录');
 }
 
 const pageTitle = ref('质量检测')
@@ -122,7 +162,7 @@ const pageTitle = ref('质量检测')
 <template>
   <DefaultLayout>
 
-    <!-- 新增支付记录对话框 -->
+    <!-- 新增质检记录对话框 -->
     <el-dialog v-model="addDialogVisible" title="新增质检记录记录" width="800" align-center class="p-10"
       @close="closeAddInspectDialog()">
       <div class="rounded-lg px-6">
@@ -140,12 +180,12 @@ const pageTitle = ref('质量检测')
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
-            <span class="text-red">*</span><span class="text-xs">质检人</span>
+            <span class="text-red">*</span><span class="text-xs">项目名称</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <input type="text"
-              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-              v-model="detailData.checker" />
+            <el-select v-model="detailData.project.projectId" class="w-full text-xs" placeholder="" size="small">
+              <el-option v-for="item in projectOp" :key="item.projectId" :label="item.projectName" :value="item.projectId" />
+            </el-select>
           </div>
 
           <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
@@ -164,14 +204,23 @@ const pageTitle = ref('质量检测')
             <el-date-picker v-model="detailData.checkDate" type="date" placeholder="" size="small" />
           </div>
 
-          <div class="col-start-11 col-end-11">
+          <div class="col-span-2 bg-slate-100 w-full h-10 flex justify-end items-center px-2 border border-slate-300">
+            <span class="text-red">*</span><span class="text-xs">质检人</span>
+          </div>
+          <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
+            <input type="text"
+              class="w-full h-2/3 border-[0.5px] text-black border-stroke bg-transparent py-3 px-2 text-xs outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              v-model="detailData.checker" />
+          </div>
+
+          <div class="mt-6 col-start-11 col-end-11">
             <button
               @click="addInspectRecord()"
               class="flex justify-around items-center bg-primary text-white rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-opacity-50">
               确定
             </button>
           </div>
-          <div class="col-start-12 col-end-12">
+          <div class="mt-6 col-start-12 col-end-12">
             <button
               class="flex justify-around items-center bg-white text-black border rounded-lg w-14 p-1.5 text-xs ml-auto mt-5 mb-2 hover:bg-gray"
               @click="closeAddInspectDialog()">
@@ -198,6 +247,21 @@ const pageTitle = ref('质量检测')
           <p class="text-xs">质检日期</p>
           <el-date-picker v-model="conditions.checkDate" type="daterange" range-separator="至" start-placeholder="开始时间"
             end-placeholder="结束时间" class="m-2 max-w-100" value-format="YYYY-MM-DD" style="width: 200px;" />
+        </div>
+
+        <div class="flex items-center">
+          <p class="text-xs ml-3">质检结果</p>
+          <el-select v-model="conditions.checkResult" class="m-2 max-w-100" placeholder=""
+            style="width: 150px">
+            <el-option v-for="item in resultOp" :key="item" :label="item" :value="item" />
+          </el-select>
+        </div>
+
+        <div class="flex items-center">
+          <p class="text-xs ml-3">项目名称</p>
+          <el-select v-model="conditions.projectId" class="m-2 max-w-100" placeholder="" style="width: 150px">
+            <el-option v-for="item in projectOp" :key="item.projectId" :label="item.projectName" :value="item.projectId" />
+          </el-select>
         </div>
 
         <button
@@ -231,6 +295,19 @@ const pageTitle = ref('质量检测')
           </svg>
           新增
         </button>
+
+        <button
+          @click="exportXLSXFile()"
+          class="flex justify-around items-center bg-primary text-white rounded-lg w-16 p-1.5 text-xs m-2 hover:ring-1 hover:ring-primary hover:-translate-y-1 transition ring-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-white">
+            <path d="M11 16h2V7h3l-4-5-4 5h3z">
+            </path>
+            <path
+              d="M5 22h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2z">
+            </path>
+          </svg>
+          导出
+        </button>
       </div>
 
       <div class="max-h-400 overflow-y-auto mt-1">
@@ -244,6 +321,9 @@ const pageTitle = ref('质量检测')
               </th>
               <th class="text-xs min-w-[150px] py-1 px-2 font-medium text-black dark:text-white">
                 质检编号
+              </th>
+              <th class="text-xs min-w-[200px] py-1 px-2 font-medium text-black dark:text-white">
+                项目名称
               </th>
               <th class="text-xs font-normal min-w-[150px] py-1 px-2 font-medium text-black dark:text-white">
                 质检人
@@ -264,6 +344,9 @@ const pageTitle = ref('质量检测')
               </td>
               <td class="text-center py-2 px-2">
                 <p class="text-xs text-black">{{ item.checkId }}</p>
+              </td>
+              <td class="text-center py-2 px-2">
+                <p class="text-xs text-black">{{ item.project.projectName }}</p>
               </td>
               <td class="text-center py-2 px-2">
                 <p class="text-xs text-black">{{ item.checker }}</p>

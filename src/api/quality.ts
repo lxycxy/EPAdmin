@@ -1,8 +1,11 @@
 import request from "@/utils/request";
+import type { ProjectData } from "./project";
 
 export interface SearchConditions {
     checkId: string,
     checkDate: Date[],
+    checkResult: string,
+    projectId: string
 }
 
 export interface InspectRecord {
@@ -10,6 +13,7 @@ export interface InspectRecord {
     checker: string,
     checkDate: Date,
     checkResult: string,
+    project: ProjectData
 }
 
 export const getInspectData = () => {
@@ -20,4 +24,7 @@ export const checkCheckId = (data : string) => {
 }
 export const addInspectRecord = (data : InspectRecord) => {
     return request.post('/crebas/quality/createQuality', data)
+}
+export const searchInspectRecordData = (data : SearchConditions) => {
+    return request.post('/crebas/quality/filterQualityCheck', data)
 }

@@ -52,10 +52,6 @@ const handleReset = () => {
         <ResetIcon class="w-4 h-4"></ResetIcon>
         <span class="text-white">重置</span>
       </EButton>
-      <EButton @click="$emit('clickSearch')" class="bg-meta-10 h-3/4 w-20">
-        <ExportIcon class="w-4 h-4"></ExportIcon>
-        导出
-      </EButton>
       <slot></slot>
     </div>
   </div>

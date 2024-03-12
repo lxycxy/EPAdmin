@@ -61,7 +61,9 @@ const handlePageChange = (currentPage: number) => {
 
 const tableData = ref<PayRecord[]>([])
 const originData = ref<PayRecord[]>([])
-let detailData: PayRecord = reactive({}) as PayRecord;
+let detailData: PayRecord = reactive({
+  contract: {}
+}) as PayRecord;
 const getPayRecordData = () => {
   getComany1Data();
   getComany2Data();
@@ -89,14 +91,16 @@ const addPayContractDialog = () => {
 }
 const closeAddPayRecordDialog = () => {
   addDialogVisible.value = false;
-  detailData = reactive({}) as PayRecord
+  detailData = reactive({
+    contract: {}
+  }) as PayRecord
 }
 /* 添加合同支付进度记录 */
-/* const addPayRecord = () => {
+const addPayRecord = () => {
   if (detailData.payId == undefined || detailData.contract == undefined ||
     detailData.payPlan == undefined || detailData.moneyPaid == undefined ||
     detailData.payDate == undefined || detailData.payId == '' ||
-    detailData.payPlan == '' || detailData.moneyPaid == '' ||
+    detailData.payPlan == '' || detailData.moneyPaid == ''
   ) {
     ElMessage({
       type: 'warning',
@@ -143,7 +147,7 @@ const closeAddPayRecordDialog = () => {
         })
       })
   }
-} */
+}
 
 const searchData = () => {
   if (((conditions.minCost == '' || conditions.minCost == undefined) && (conditions.maxCost != '' && conditions.maxCost != undefined)) ||
@@ -218,7 +222,7 @@ const pageTitle = ref('合同支付进度')
             <span class="text-red">*</span><span class="text-xs">合同名称</span>
           </div>
           <div class="col-span-4 flex items-center h-10 px-2 border border-slate-300">
-            <el-select v-model="detailData.contract" class="w-full text-xs" placeholder="" size="small">
+            <el-select v-model="detailData.contract.contractId" class="w-full text-xs" placeholder="" size="small">
               <el-option v-for="item in contractOp" :key="item.contractId" :label="item.contractName"
                 :value="item.contractId" />
             </el-select>
